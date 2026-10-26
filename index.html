@@ -3,17 +3,215 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f8fc">
+    <meta name="description" content="シンプルなホームページのテンプレートです。">
     <title>ホームページ</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+        color: #20243a;
+        background: #f7f8fc;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .site-header,
+      main,
+      .site-footer {
+        width: min(100% - 48px, 1080px);
+        margin-inline: auto;
+      }
+
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 88px;
+      }
+
+      .brand {
+        color: #20243a;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-decoration: none;
+      }
+
+      .header-note {
+        color: #74798d;
+        font-size: 0.875rem;
+      }
+
+      main {
+        display: grid;
+        min-height: calc(100svh - 160px);
+        align-items: center;
+        padding-block: 48px 80px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: clamp(40px, 8vw, 96px);
+        border: 1px solid #e9eaf2;
+        border-radius: 28px;
+        background:
+          radial-gradient(ellipse at 90% 0%, rgb(143 130 255 / 24%), transparent 42%),
+          linear-gradient(135deg, #fff 20%, #f1f2ff 100%);
+        box-shadow: 0 24px 70px rgb(40 46 90 / 8%);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0 0 24px;
+        color: #6356c7;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #8172ed;
+        content: "";
+      }
+
+      h1 {
+        max-width: 680px;
+        margin: 0;
+        font-size: clamp(2.5rem, 7vw, 5rem);
+        font-weight: 800;
+        letter-spacing: -0.06em;
+        line-height: 1.2;
+      }
+
+      .hero-copy {
+        max-width: 540px;
+        margin: 24px 0 0;
+        color: #666c82;
+        font-size: clamp(1rem, 2vw, 1.125rem);
+        line-height: 1.9;
+      }
+
+      .hero-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 36px;
+        padding: 14px 21px;
+        border-radius: 999px;
+        background: #6254c7;
+        color: #fff;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background-color 160ms ease, transform 160ms ease;
+      }
+
+      .hero-link:hover {
+        transform: translateY(-2px);
+        background: #5043b0;
+      }
+
+      .hero-link:focus-visible,
+      .brand:focus-visible {
+        outline: 3px solid #a59bf5;
+        outline-offset: 4px;
+      }
+
+      .hero-link span {
+        font-size: 1.2rem;
+        line-height: 1;
+      }
+
+      .site-footer {
+        display: flex;
+        justify-content: space-between;
+        padding-block: 20px 28px;
+        border-top: 1px solid #e7e8ef;
+        color: #85899a;
+        font-size: 0.8125rem;
+      }
+
+      .site-footer p {
+        margin: 0;
+      }
+
+      @media (max-width: 600px) {
+        .site-header,
+        main,
+        .site-footer {
+          width: min(100% - 32px, 1080px);
+        }
+
+        .site-header {
+          min-height: 72px;
+        }
+
+        main {
+          min-height: calc(100svh - 144px);
+          padding-block: 28px 48px;
+        }
+
+        .hero {
+          padding: 40px 28px;
+          border-radius: 22px;
+        }
+
+        .site-footer {
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
   </head>
   <body>
-    <header>
-      <h1>ホームページ</h1>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="ホーム">HOME<span aria-hidden="true">.</span></a>
+      <span class="header-note">あなたのウェブサイト</span>
     </header>
     <main>
-      <p>ここにページの内容を追加してください。</p>
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow">Welcome to my website</p>
+        <h1 id="hero-title">ホームページ</h1>
+        <p class="hero-copy">ここにページの内容を追加してください。伝えたいことやサービスの紹介など、自由に編集できます。</p>
+        <a class="hero-link" href="calc.html">計算機を使う <span aria-hidden="true">→</span></a>
+      </section>
     </main>
-    <footer>
-      <small>&copy; 2026</small>
+    <footer class="site-footer" id="site-footer">
+      <p><small>&copy; 2026 ホームページ</small></p>
+      <p><small>このページの内容は自由に編集できます。</small></p>
     </footer>
   </body>
 </html>
