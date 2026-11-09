@@ -1,29 +1,32 @@
 .loading-curtain {
   position: fixed;
   z-index: 1000;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: 100%;
-  height: 100%;
   inset: 0;
   pointer-events: none;
 }
 
 .loading-curtain-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
   background: linear-gradient(90deg, #52796f 0%, #789b83 58%, #b7c9a8 100%);
-  animation: curtain-open 1.35s cubic-bezier(0.76, 0, 0.24, 1) 1.65s forwards;
+  animation: curtain-open 1.5s cubic-bezier(0.76, 0, 0.24, 1) 1.8s forwards;
 }
 
 .loading-curtain-panel:nth-child(2) {
+  right: 0;
+  left: auto;
   background: linear-gradient(270deg, #52796f 0%, #789b83 58%, #b7c9a8 100%);
   animation-name: curtain-open-right;
 }
 
 .loading-mark {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 76px;
+  position: fixed;
+  top: 50vh;
+  left: 50vw;
+  width: 84px;
   aspect-ratio: 1;
   border-radius: 50%;
   background: conic-gradient(
@@ -37,7 +40,7 @@
   );
   clip-path: polygon(50% 0, 89% 19%, 99% 61%, 72% 96%, 28% 96%, 1% 61%, 11% 19%);
   transform: translate(-50%, -50%);
-  animation: loading-spin 900ms linear infinite, loading-mark-hide 200ms ease 1.45s forwards;
+  animation: loading-spin 800ms linear infinite, loading-mark-hide 200ms ease 1.65s forwards;
 }
 
 .loading-mark::after {
@@ -73,7 +76,7 @@
 
 @keyframes loading-spin {
   to {
-    rotate: 1turn;
+    transform: translate(-50%, -50%) rotate(1turn);
   }
 }
 
