@@ -216,8 +216,13 @@
         }
       }
     </style>
+    <link rel="stylesheet" href="page-transition.css">
   </head>
   <body>
+    <div class="loading-curtain" aria-hidden="true">
+      <div class="loading-curtain-panel"></div>
+      <div class="loading-curtain-panel"></div>
+    </div>
     <header class="site-header">
       <a class="brand" href="index.html" aria-label="ホーム">HOME<span aria-hidden="true">.</span></a>
       <span class="header-note">計算機</span>
@@ -255,6 +260,7 @@
       <p><small>&copy; 2026 ホームページ</small></p>
       <p><small>このページの内容は自由に編集できます。</small></p>
     </footer>
+    <script src="page-transition.js"></script>
     <script>
       const display = document.querySelector("#display");
       const keypad = document.querySelector(".keypad");

@@ -22,44 +22,6 @@
         box-sizing: border-box;
       }
 
-      .loading-curtain {
-        position: fixed;
-        z-index: 10;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        width: 100%;
-        height: 100%;
-        inset: 0;
-        pointer-events: none;
-      }
-
-      .loading-curtain-panel {
-        background:
-          linear-gradient(90deg, #171522 0%, #27233b 82%, #39334f 100%);
-        animation: curtain-open 1.25s cubic-bezier(0.76, 0, 0.24, 1) 0.2s forwards;
-      }
-
-      .loading-curtain-panel:last-child {
-        background:
-          linear-gradient(270deg, #171522 0%, #27233b 82%, #39334f 100%);
-      }
-
-      @keyframes curtain-open {
-        to {
-          transform: translateX(-100%);
-        }
-      }
-
-      .loading-curtain-panel:last-child {
-        animation-name: curtain-open-right;
-      }
-
-      @keyframes curtain-open-right {
-        to {
-          transform: translateX(100%);
-        }
-      }
-
       body {
         min-width: 320px;
         min-height: 100vh;
@@ -246,11 +208,9 @@
           transition-duration: 0.01ms !important;
         }
 
-        .loading-curtain {
-          display: none;
-        }
       }
     </style>
+    <link rel="stylesheet" href="page-transition.css">
   </head>
   <body>
     <div class="loading-curtain" aria-hidden="true">
@@ -276,5 +236,6 @@
       <p><small>&copy; 2026 ホームページ</small></p>
       <p><small>このページの内容は自由に編集できます。</small></p>
     </footer>
+    <script src="page-transition.js"></script>
   </body>
 </html>
