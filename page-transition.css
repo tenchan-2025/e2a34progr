@@ -10,12 +10,12 @@
 }
 
 .loading-curtain-panel {
-  background: linear-gradient(90deg, #17191b 0%, #272a2c 84%, #373a3b 100%);
+  background: linear-gradient(90deg, #52796f 0%, #789b83 58%, #b7c9a8 100%);
   animation: curtain-open 1s cubic-bezier(0.76, 0, 0.24, 1) 0.15s forwards;
 }
 
 .loading-curtain-panel:last-child {
-  background: linear-gradient(270deg, #17191b 0%, #272a2c 84%, #373a3b 100%);
+  background: linear-gradient(270deg, #52796f 0%, #789b83 58%, #b7c9a8 100%);
   animation-name: curtain-open-right;
 }
 
