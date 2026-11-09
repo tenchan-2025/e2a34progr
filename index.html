@@ -115,11 +115,17 @@
         line-height: 1.9;
       }
 
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 36px;
+      }
+
       .hero-link {
         display: inline-flex;
         align-items: center;
         gap: 12px;
-        margin-top: 36px;
         padding: 14px 21px;
         border-radius: 999px;
         background: #6254c7;
@@ -133,6 +139,14 @@
       .hero-link:hover {
         transform: translateY(-2px);
         background: #5043b0;
+      }
+
+      .hero-link-city {
+        background: #2f7354;
+      }
+
+      .hero-link-city:hover {
+        background: #245c42;
       }
 
       .hero-link:focus-visible,
@@ -206,7 +220,10 @@
         <p class="eyebrow">Welcome to my website</p>
         <h1 id="hero-title">ホームページ</h1>
         <p class="hero-copy">ここにページの内容を追加してください。伝えたいことやサービスの紹介など、自由に編集できます。</p>
-        <a class="hero-link" href="calc.html">計算機を使う <span aria-hidden="true">→</span></a>
+        <div class="hero-actions">
+          <a class="hero-link" href="calc.html">計算機を使う <span aria-hidden="true">→</span></a>
+          <a class="hero-link hero-link-city" href="yacchi.html">八千代市を知る <span aria-hidden="true">→</span></a>
+        </div>
       </section>
     </main>
     <footer class="site-footer" id="site-footer">

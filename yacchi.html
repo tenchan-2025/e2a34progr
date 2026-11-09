@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f6f7ef">
+    <meta name="description" content="千葉県八千代市の自然や見どころ、まちの魅力を紹介します。">
+    <title>八千代市の紹介 | ホームページ</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+        color: #20352c;
+        background: #f6f7ef;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        min-width: 320px;
+        margin: 0;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .site-header,
+      main,
+      .site-footer {
+        width: min(100% - 48px, 1080px);
+        margin-inline: auto;
+      }
+
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 80px;
+      }
+
+      .brand {
+        color: #20352c;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-decoration: none;
+      }
+
+      .header-note {
+        color: #617267;
+        font-size: 0.875rem;
+      }
+
+      main {
+        padding-bottom: 72px;
+      }
+
+      .intro {
+        position: relative;
+        display: grid;
+        min-height: 390px;
+        align-content: center;
+        overflow: hidden;
+        padding: 64px clamp(28px, 8vw, 96px);
+        background-color: #e7eddc;
+        background-image: repeating-linear-gradient(145deg, transparent 0 44px, rgb(47 115 84 / 7%) 45px 46px, transparent 47px 88px);
+        animation: arrive 700ms ease-out both;
+      }
+
+      .intro::after {
+        position: absolute;
+        right: 9%;
+        bottom: -132px;
+        width: 360px;
+        aspect-ratio: 1;
+        border: 1px solid rgb(47 115 84 / 24%);
+        border-radius: 50%;
+        box-shadow: 0 0 0 28px rgb(47 115 84 / 5%), 0 0 0 58px rgb(47 115 84 / 5%);
+        content: "";
+        pointer-events: none;
+      }
+
+      .eyebrow {
+        position: relative;
+        z-index: 1;
+        margin: 0 0 16px;
+        color: #397454;
+        font-size: 0.8125rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+      }
+
+      h1 {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        color: #20352c;
+        font-size: clamp(3rem, 8vw, 6rem);
+        font-weight: 800;
+        line-height: 1.12;
+      }
+
+      .intro-copy {
+        position: relative;
+        z-index: 1;
+        max-width: 550px;
+        margin: 22px 0 0;
+        color: #52665a;
+        font-size: 1.0625rem;
+        line-height: 1.9;
+      }
+
+      .city-facts {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin: 0;
+        border-bottom: 1px solid #dce2d7;
+      }
+
+      .city-facts div {
+        padding: 22px 24px;
+        border-right: 1px solid #dce2d7;
+      }
+
+      .city-facts div:first-child {
+        border-left: 1px solid #dce2d7;
+      }
+
+      .city-facts dt {
+        color: #69786d;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+
+      .city-facts dd {
+        margin: 5px 0 0;
+        color: #274c37;
+        font-size: 1.0625rem;
+        font-weight: 800;
+      }
+
+      .content-section {
+        display: grid;
+        grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.3fr);
+        gap: 48px;
+        padding-block: 60px;
+        border-bottom: 1px solid #dce2d7;
+      }
+
+      .section-label {
+        margin: 5px 0 12px;
+        color: #b25b48;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+      }
+
+      h2 {
+        margin: 0;
+        color: #20352c;
+        font-size: 1.75rem;
+        line-height: 1.45;
+      }
+
+      .section-copy {
+        margin: 0;
+        color: #59685e;
+        font-size: 1rem;
+        line-height: 2;
+      }
+
+      .highlights {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+        padding-top: 36px;
+      }
+
+      .highlight {
+        padding-top: 18px;
+        border-top: 3px solid #8eaa76;
+        animation: arrive 700ms ease-out both;
+      }
+
+      .highlight:nth-child(2) {
+        border-color: #c76b58;
+        animation-delay: 100ms;
+      }
+
+      .highlight:nth-child(3) {
+        border-color: #6d9d9a;
+        animation-delay: 200ms;
+      }
+
+      .highlight h3 {
+        margin: 0 0 10px;
+        color: #274c37;
+        font-size: 1.125rem;
+      }
+
+      .highlight p {
+        margin: 0;
+        color: #59685e;
+        font-size: 0.9375rem;
+        line-height: 1.9;
+      }
+
+      .home-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 36px;
+        color: #2f7354;
+        font-size: 0.9375rem;
+        font-weight: 800;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 5px;
+      }
+
+      .brand:focus-visible,
+      .home-link:focus-visible {
+        outline: 3px solid #b25b48;
+        outline-offset: 4px;
+      }
+
+      .site-footer {
+        display: flex;
+        justify-content: space-between;
+        padding-block: 20px 28px;
+        border-top: 1px solid #dce2d7;
+        color: #69786d;
+        font-size: 0.8125rem;
+      }
+
+      .site-footer p {
+        margin: 0;
+      }
+
+      @keyframes arrive {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 700px) {
+        .site-header,
+        main,
+        .site-footer {
+          width: min(100% - 32px, 1080px);
+        }
+
+        .site-header {
+          min-height: 72px;
+        }
+
+        .intro {
+          min-height: 340px;
+          padding: 48px 28px;
+        }
+
+        .intro::after {
+          right: -120px;
+        }
+
+        .city-facts {
+          grid-template-columns: 1fr;
+        }
+
+        .city-facts div,
+        .city-facts div:first-child {
+          padding: 15px 4px;
+          border-right: 0;
+          border-left: 0;
+          border-bottom: 1px solid #dce2d7;
+        }
+
+        .content-section {
+          grid-template-columns: 1fr;
+          gap: 18px;
+          padding-block: 42px;
+        }
+
+        .highlights {
+          grid-template-columns: 1fr;
+          gap: 22px;
+          padding-top: 12px;
+        }
+
+        .site-footer {
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="ホーム">HOME<span aria-hidden="true">.</span></a>
+      <span class="header-note">まちの紹介</span>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">CHIBA · JAPAN</p>
+        <h1 id="page-title">八千代市</h1>
+        <p class="intro-copy">千葉県北西部に位置する八千代市。新川の水辺や花の景色、便利な交通網が身近にある、暮らしやすさと自然が調和したまちです。</p>
+      </section>
+
+      <dl class="city-facts" aria-label="八千代市の基本情報">
+        <div>
+          <dt>所在地</dt>
+          <dd>千葉県北西部</dd>
+        </div>
+        <div>
+          <dt>市内を走る主な鉄道</dt>
+          <dd>京成本線・東葉高速線</dd>
+        </div>
+        <div>
+          <dt>市のシンボルとして親しまれる花</dt>
+          <dd>バラ</dd>
+        </div>
+      </dl>
+
+      <section class="content-section" aria-labelledby="about-title">
+        <div>
+          <p class="section-label">ABOUT YACHIYO</p>
+          <h2 id="about-title">都市の便利さと<br>水辺の自然が近いまち</h2>
+        </div>
+        <p class="section-copy">八千代市は、東京都心へのアクセスに便利な鉄道が通る一方、市内には新川が流れ、田園や緑の風景も広がっています。住宅地のにぎわいと、季節を感じられる身近な自然が共存しているのが魅力です。</p>
+      </section>
+
+      <section class="content-section" aria-labelledby="spots-title">
+        <div>
+          <p class="section-label">PLACES TO DISCOVER</p>
+          <h2 id="spots-title">八千代の楽しみ</h2>
+        </div>
+        <div class="highlights">
+          <article class="highlight">
+            <h3>新川の水辺</h3>
+            <p>川沿いの遊歩道や自転車道は、散歩やサイクリングにぴったり。水辺の景色を眺めながら、ゆったり過ごせます。</p>
+          </article>
+          <article class="highlight">
+            <h3>京成バラ園</h3>
+            <p>多彩なバラを楽しめる、八千代を代表する花の名所。見頃の季節には、園内が華やかな色と香りに包まれます。</p>
+          </article>
+          <article class="highlight">
+            <h3>地元の味と出会う</h3>
+            <p>農産物直売所や地域の催しを訪ねれば、八千代で育った農産物や地域の人々の活動に触れられます。</p>
+          </article>
+        </div>
+      </section>
+
+      <a class="home-link" href="index.html"><span aria-hidden="true">←</span> ホームに戻る</a>
+    </main>
+    <footer class="site-footer">
+      <p><small>&copy; 2026 ホームページ</small></p>
+      <p><small>八千代市の魅力を紹介しています。</small></p>
+    </footer>
+  </body>
+</html>
