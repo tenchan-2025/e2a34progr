@@ -6,6 +6,9 @@
     <meta name="theme-color" content="#f6f7ef">
     <meta name="description" content="千葉県八千代市の自然や見どころ、まちの魅力を紹介します。">
     <title>八千代市の紹介 | ホームページ</title>
+    <script>
+      document.documentElement.classList.add('is-loading');
+    </script>
     <style>
       :root {
         color-scheme: light;
@@ -29,6 +32,47 @@
       body {
         min-width: 320px;
         margin: 0;
+      }
+
+      .loading-screen {
+        position: fixed;
+        z-index: 10;
+        display: grid;
+        place-content: center;
+        gap: 18px;
+        background: #f6f7ef;
+        color: #397454;
+        inset: 0;
+        opacity: 1;
+        text-align: center;
+        transition: opacity 400ms ease, visibility 400ms ease;
+      }
+
+      .loading-screen p {
+        margin: 0;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+
+      .loading-spinner {
+        width: 38px;
+        height: 38px;
+        margin-inline: auto;
+        border: 3px solid #dce5d8;
+        border-top-color: #397454;
+        border-radius: 50%;
+        animation: spin 800ms linear infinite;
+      }
+
+      .is-loaded .loading-screen {
+        visibility: hidden;
+        opacity: 0;
+      }
+
+      .is-loading .intro,
+      .is-loading .highlight {
+        animation-play-state: paused;
       }
 
       a {
@@ -259,6 +303,12 @@
         }
       }
 
+      @keyframes spin {
+        to {
+          transform: rotate(1turn);
+        }
+      }
+
       @media (max-width: 700px) {
         .site-header,
         main,
@@ -320,6 +370,10 @@
     </style>
   </head>
   <body>
+    <div class="loading-screen" role="status" aria-live="polite">
+      <span class="loading-spinner" aria-hidden="true"></span>
+      <p>読み込み中...</p>
+    </div>
     <header class="site-header">
       <a class="brand" href="index.html" aria-label="ホーム">HOME<span aria-hidden="true">.</span></a>
       <span class="header-note">まちの紹介</span>
@@ -381,5 +435,20 @@
       <p><small>&copy; 2026 ホームページ</small></p>
       <p><small>八千代市の魅力を紹介しています。</small></p>
     </footer>
+    <script>
+      const finishLoading = () => {
+        const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 700;
+        window.setTimeout(() => {
+          document.documentElement.classList.remove('is-loading');
+          document.documentElement.classList.add('is-loaded');
+        }, delay);
+      };
+
+      if (document.readyState === 'complete') {
+        finishLoading();
+      } else {
+        window.addEventListener('load', finishLoading, { once: true });
+      }
+    </script>
   </body>
 </html>
