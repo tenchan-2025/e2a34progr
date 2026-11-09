@@ -11,12 +11,44 @@
 
 .loading-curtain-panel {
   background: linear-gradient(90deg, #52796f 0%, #789b83 58%, #b7c9a8 100%);
-  animation: curtain-open 1s cubic-bezier(0.76, 0, 0.24, 1) 0.15s forwards;
+  animation: curtain-open 1.35s cubic-bezier(0.76, 0, 0.24, 1) 1.65s forwards;
 }
 
 .loading-curtain-panel:last-child {
   background: linear-gradient(270deg, #52796f 0%, #789b83 58%, #b7c9a8 100%);
   animation-name: curtain-open-right;
+}
+
+.loading-mark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 76px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    #ef476f 0deg 51.43deg,
+    #f78c3a 51.43deg 102.86deg,
+    #ffd166 102.86deg 154.29deg,
+    #06d6a0 154.29deg 205.72deg,
+    #118ab2 205.72deg 257.15deg,
+    #5e60ce 257.15deg 308.58deg,
+    #b5179e 308.58deg 360deg
+  );
+  clip-path: polygon(50% 0, 89% 19%, 99% 61%, 72% 96%, 28% 96%, 1% 61%, 11% 19%);
+  transform: translate(-50%, -50%);
+  animation: loading-spin 900ms linear infinite, loading-mark-hide 200ms ease 1.45s forwards;
+}
+
+.loading-mark::after {
+  position: absolute;
+  width: 14px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #f7f8f2;
+  content: "";
+  inset: 0;
+  margin: auto;
 }
 
 .loading-curtain.is-leaving .loading-curtain-panel {
@@ -36,6 +68,19 @@
 @keyframes curtain-open-right {
   to {
     transform: translateX(100%);
+  }
+}
+
+@keyframes loading-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@keyframes loading-mark-hide {
+  to {
+    opacity: 0;
+    visibility: hidden;
   }
 }
 
