@@ -42,4 +42,10 @@ if (curtain && !reducedMotion.matches) {
       window.location.assign(destination.href);
     }, 700);
   });
+
+  window.addEventListener("pageshow", (event) => {
+    if (!event.persisted) return;
+    navigating = false;
+    curtain.classList.remove("is-leaving");
+  });
 }
