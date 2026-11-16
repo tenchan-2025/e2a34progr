@@ -11,7 +11,7 @@ function applyTextSize(size) {
   });
 }
 
-let initialTextSize = "medium";
+let initialTextSize = "small";
 try {
   const savedTextSize = window.localStorage.getItem(textSizeStorageKey);
   if (textSizeOptions.includes(savedTextSize)) {

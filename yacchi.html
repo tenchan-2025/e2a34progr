@@ -8,7 +8,7 @@
     <title>八千代市の紹介 | ホームページ</title>
     <style>
       :root {
-        --text-size-scale: 1;
+        --text-size-scale: 0.875;
         color-scheme: light;
         font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
         color: #20352c;
@@ -188,6 +188,10 @@
         padding-top: 36px;
       }
 
+      .railway-highlights {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .highlight {
         padding-top: 18px;
         border-top: 3px solid #8eaa76;
@@ -333,8 +337,8 @@
       <a class="brand" href="index.html" aria-label="ホーム">HOME<span aria-hidden="true">.</span></a>
       <div class="text-size-control" role="group" aria-label="文字サイズ">
         <span>文字サイズ</span>
-        <button type="button" data-text-size="small" aria-label="文字サイズを小にする" aria-pressed="false">小</button>
-        <button type="button" data-text-size="medium" aria-label="文字サイズを中にする" aria-pressed="true">中</button>
+        <button type="button" data-text-size="small" aria-label="文字サイズを小にする" aria-pressed="true">小</button>
+        <button type="button" data-text-size="medium" aria-label="文字サイズを中にする" aria-pressed="false">中</button>
         <button type="button" data-text-size="large" aria-label="文字サイズを大にする" aria-pressed="false">大</button>
       </div>
       <span class="header-note">まちの紹介</span>
@@ -367,6 +371,23 @@
           <h2 id="about-title">都市の便利さと<br>水辺の自然が近いまち</h2>
         </div>
         <p class="section-copy">八千代市は、東京都心へのアクセスに便利な鉄道が通る一方、市内には新川が流れ、田園や緑の風景も広がっています。住宅地のにぎわいと、季節を感じられる身近な自然が共存しているのが魅力です。</p>
+      </section>
+
+      <section class="content-section" aria-labelledby="railway-title">
+        <div>
+          <p class="section-label">RAILWAY ACCESS</p>
+          <h2 id="railway-title">二つの鉄道がつなぐ、八千代</h2>
+        </div>
+        <div class="highlights railway-highlights">
+          <article class="highlight">
+            <h3>京成電鉄（京成本線）</h3>
+            <p>八千代台駅や京成大和田駅から、上野・日暮里方面や成田空港方面へ。都心への通勤・通学から空港を利用するお出かけまで、行き先に合わせて移動できます。</p>
+          </article>
+          <article class="highlight">
+            <h3>東葉高速鉄道</h3>
+            <p>市内の村上・八千代中央・八千代緑が丘・東葉勝田台の各駅から、西船橋経由で東京メトロ東西線へ直通。大手町や日本橋方面へ乗り換えなしで行ける列車もあり、都心への移動に便利です。</p>
+          </article>
+        </div>
       </section>
 
       <section class="content-section" aria-labelledby="spots-title">

@@ -1,5 +1,6 @@
 :root {
-  --text-size-scale: 1;
+  --text-size-scale: 0.875;
+  font-size: 87.5%;
 }
 
 :root[data-text-size="small"] {
