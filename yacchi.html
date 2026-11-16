@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f6f7ef">
-    <meta name="description" content="新川の水辺、京成バラ園、地元の味。自然と暮らしが調和する千葉県八千代市の魅力を紹介します。">
-    <title>八千代市の魅力 | 水辺と花のまち</title>
+    <meta name="description" content="八千代市を東西南北から楽しむ地域ガイド。新川の花景色、京成バラ園、梨やにんじん、ご当地グルメ、歴史と祭りを紹介します。">
+    <title>八千代市を東西南北から楽しむ | 水辺・花・食・歴史</title>
     <style>
       :root {
         --text-size-scale: 0.875;
@@ -94,6 +94,10 @@
         display: block;
         width: 100%;
         height: auto;
+      }
+
+      .intro-text {
+        z-index: 2;
       }
 
       .quick-nav {
@@ -224,6 +228,137 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      .regional-guide,
+      .deep-dive,
+      .day-trips,
+      .official-links {
+        padding-block: 60px;
+        border-bottom: 1px solid #dce2d7;
+      }
+
+      .guide-heading {
+        max-width: 720px;
+      }
+
+      .guide-heading .section-label {
+        margin-top: 0;
+      }
+
+      .guide-intro {
+        margin: 14px 0 0;
+        color: #59685e;
+        font-size: 0.9375rem;
+        line-height: 1.9;
+      }
+
+      .region-grid,
+      .topic-grid,
+      .trip-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 28px;
+      }
+
+      .region-card,
+      .topic-card,
+      .trip-card {
+        padding: 24px;
+        border: 1px solid #e3e7df;
+        border-radius: 4px 4px 16px 16px;
+        background: #fff;
+      }
+
+      .region-card {
+        border-top: 3px solid #8eaa76;
+      }
+
+      .region-card:nth-child(2) {
+        border-top-color: #6d9d9a;
+      }
+
+      .region-card:nth-child(3) {
+        border-top-color: #c76b58;
+      }
+
+      .region-card:nth-child(4) {
+        border-top-color: #c49a54;
+      }
+
+      .direction {
+        display: inline-block;
+        margin: 0 0 10px;
+        color: #b25b48;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+      }
+
+      .region-card h3,
+      .topic-card h3,
+      .trip-card h3 {
+        margin: 0 0 10px;
+        color: #274c37;
+        font-size: 1.2rem;
+      }
+
+      .region-card p,
+      .topic-card p,
+      .trip-card p {
+        margin: 0;
+        color: #59685e;
+        font-size: 0.9375rem;
+        line-height: 1.9;
+      }
+
+      .region-card ul,
+      .topic-card ul,
+      .trip-card ol {
+        display: grid;
+        gap: 9px;
+        margin: 16px 0 0;
+        padding-left: 1.25em;
+        color: #59685e;
+        font-size: 0.9rem;
+        line-height: 1.8;
+      }
+
+      .guide-note {
+        margin: 18px 0 0;
+        color: #69786d;
+        font-size: 0.8125rem;
+        line-height: 1.8;
+      }
+
+      .topic-card {
+        background: linear-gradient(145deg, #fff, #f8f8f3);
+      }
+
+      .topic-card strong {
+        color: #274c37;
+      }
+
+      .official-links ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 22px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .official-links a {
+        display: inline-flex;
+        padding: 11px 16px;
+        border: 1px solid #dce2d7;
+        border-radius: 999px;
+        background: #fff;
+        color: #2f7354;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-underline-offset: 4px;
+      }
+
       .highlight {
         min-height: 175px;
         padding: 22px;
@@ -342,7 +477,8 @@
 
       .brand:focus-visible,
       .home-link:focus-visible,
-      .quick-nav a:focus-visible {
+      .quick-nav a:focus-visible,
+      .official-links a:focus-visible {
         outline: 3px solid #b25b48;
         outline-offset: 4px;
       }
@@ -386,13 +522,12 @@
         .intro {
           grid-template-columns: 1fr;
           min-height: 340px;
-          padding: 44px 28px 32px;
+          padding: 44px 28px;
         }
 
         .intro-art {
-          width: min(58%, 220px);
-          margin-top: 16px;
-          margin-right: 0;
+          width: min(42%, 180px);
+          margin-top: 12px;
         }
 
         .intro-copy {
@@ -427,6 +562,27 @@
           grid-template-columns: 1fr;
         }
 
+        .regional-guide,
+        .deep-dive,
+        .day-trips,
+        .official-links {
+          padding-block: 42px;
+        }
+
+        .region-grid,
+        .topic-grid,
+        .trip-grid {
+          grid-template-columns: 1fr;
+          gap: 14px;
+          margin-top: 20px;
+        }
+
+        .region-card,
+        .topic-card,
+        .trip-card {
+          padding: 20px;
+        }
+
         .highlight {
           min-height: 0;
         }
@@ -457,6 +613,7 @@
         *::after {
           scroll-behavior: auto !important;
           animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
         }
       }
     </style>
@@ -485,7 +642,7 @@
         <div class="intro-text">
           <p class="eyebrow">CHIBA · JAPAN</p>
           <h1 id="page-title">八千代市</h1>
-          <p class="intro-copy">千葉県北西部に位置する八千代市。新川の水辺や花の景色、便利な交通網が身近にある、暮らしやすさと自然が調和したまちです。</p>
+          <p class="intro-copy">北の田園、まちを南北に流れる新川、駅ごとに表情の違う住宅地。花や農産物、歴史と祭りをめぐれば、八千代の楽しみは東西南北に広がります。</p>
         </div>
         <div class="intro-art" aria-hidden="true">
           <svg viewBox="0 0 360 270" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -525,6 +682,8 @@
         <a href="#about-title">八千代ってどんなまち？</a>
         <a href="#railway-title">アクセス</a>
         <a href="#spots-title">見どころ</a>
+        <a href="#regions-title">東西南北ガイド</a>
+        <a href="#food-title">食と特産品</a>
         <a href="#season-title">四季の楽しみ</a>
       </nav>
 
@@ -578,6 +737,103 @@
         </div>
       </section>
 
+      <section class="regional-guide" aria-labelledby="regions-title">
+        <div class="guide-heading">
+          <p class="section-label">EXPLORE BY DIRECTION</p>
+          <h2 id="regions-title">東西南北で見つける、八千代の顔</h2>
+          <p class="guide-intro">八千代市は、自然豊かな北部から市街地の広がる南部まで、新川を軸に景色が変わります。ここでは方角ごとの目安で、近くの駅や見どころをまとめました。境界は紹介のための大まかな区分です。</p>
+        </div>
+        <div class="region-grid">
+          <article class="region-card">
+            <p class="direction">NORTH · 北部</p>
+            <h3>田園と台地の緑に出会う</h3>
+            <p>市の北側に広がる下総台地には、畑や緑の景観が残ります。住宅地のにぎわいから少し離れて、八千代の農の風景と季節の移ろいを感じるエリアです。</p>
+            <ul>
+              <li><strong>畑の風景を楽しむ：</strong>市の特産品である梨やにんじんを育む農地が、まちの暮らしを支えています。</li>
+              <li><strong>旬の味を探す：</strong>直売所や市内の販売所で、季節の農産物との出会いを楽しんで。</li>
+              <li><strong>のんびり散策：</strong>季節や天候に合わせて歩きやすい道を選び、田園の広がりや空の大きさを味わいましょう。</li>
+            </ul>
+          </article>
+          <article class="region-card">
+            <p class="direction">EAST · 東部</p>
+            <h3>村上から勝田台へ、歴史とまち歩き</h3>
+            <p>村上・勝田台方面は、東葉高速線と京成本線が出会う交通の要所。新川の自然に加え、郷土の歴史や地域に受け継がれる文化に触れられます。</p>
+            <ul>
+              <li><strong>八千代市立郷土博物館：</strong>地域の成り立ちや人々の暮らしを知ると、台地や川の風景への理解が深まります。</li>
+              <li><strong>村上の神楽：</strong>地域に伝承されてきた民俗文化。祭礼や公開の機会は、開催情報を確認して訪ねましょう。</li>
+              <li><strong>勝田台の駅前：</strong>京成本線と東葉高速線を使い分けられる便利さと、駅周辺の店や街並みを楽しめます。</li>
+            </ul>
+          </article>
+          <article class="region-card">
+            <p class="direction">SOUTH · 南部</p>
+            <h3>暮らしの風景と、便利な駅のまち</h3>
+            <p>南側には緑を残しながら住宅地が広がり、駅を中心に日々の買い物や地域活動が営まれています。観光地だけではない、八千代で暮らす人の目線に近づけるエリアです。</p>
+            <ul>
+              <li><strong>八千代台・京成大和田周辺：</strong>京成本線沿線の駅を起点に、商店や公共施設、住宅地の雰囲気を歩いて発見。</li>
+              <li><strong>まちの緑を探す：</strong>公園や街路樹など、生活圏にある緑に目を向けると、南部の穏やかな表情が見えてきます。</li>
+              <li><strong>地域の活動に参加：</strong>公民館や地域施設の催しを調べると、地元の人とつながるきっかけになります。</li>
+            </ul>
+          </article>
+          <article class="region-card">
+            <p class="direction">WEST · 西部</p>
+            <h3>花と新しい街並みを楽しむ</h3>
+            <p>八千代緑が丘周辺には、駅前の商業施設と季節の花を楽しめるスポットが集まっています。買い物や食事と花めぐりを一緒に楽しみたい日におすすめです。</p>
+            <ul>
+              <li><strong>京成バラ園：</strong>市を代表する花の名所。園内をゆっくり歩き、色や香りの違うバラを楽しみましょう。</li>
+              <li><strong>八千代緑が丘駅周辺：</strong>駅前で食事や買い物を組み合わせやすく、休日のお出かけにも便利です。</li>
+              <li><strong>黒沢池のたたら祭：</strong>地域の催しとして親しまれる祭り。開催時期や内容は年ごとに公式情報を確認してください。</li>
+            </ul>
+          </article>
+        </div>
+        <p class="guide-note">※地域区分は観光の目安です。施設の所在地、交通手段、営業日・開館日を確認してからお出かけください。</p>
+      </section>
+
+      <section class="deep-dive" aria-labelledby="food-title">
+        <div class="guide-heading">
+          <p class="section-label">TASTE · HISTORY · COMMUNITY</p>
+          <h2 id="food-title">もう一歩深く知る、八千代の楽しみ</h2>
+          <p class="guide-intro">景色を眺めるだけでなく、食べる・学ぶ・地域の人と出会うことも、まちを知る楽しさ。八千代ならではの話題をテーマ別に集めました。</p>
+        </div>
+        <div class="topic-grid">
+          <article class="topic-card">
+            <h3>梨とにんじん、畑から届く味</h3>
+            <p>八千代の梨づくりには<strong>100年以上の歴史</strong>があり、にんじんは<strong>国の指定産地</strong>にもなっています。直売所や市内のお店で旬を探し、生産者の工夫や食べ方を聞いてみるのもおすすめです。</p>
+            <ul>
+              <li>梨は品種や時期によって味わいが変わる、夏から秋の楽しみ。</li>
+              <li>にんじんなどの地元野菜は、直売所や飲食店で出会えることがあります。</li>
+              <li>道の駅やちよ・やちよ農業交流センターでは、農産物や農業体験の情報をチェック。</li>
+            </ul>
+          </article>
+          <article class="topic-card">
+            <h3>ご当地グルメを味わう</h3>
+            <p>八千代カレーや、鍋料理「源右衛門鍋」など、地域の食を生かしたご当地グルメも魅力。提供するお店やイベントを探しながら、まちごとの味の違いを楽しめます。</p>
+            <ul>
+              <li>八千代カレーは、市内の参加店ごとに個性の違う一皿に出会う楽しみがあります。</li>
+              <li>源右衛門鍋は地域の催しなどで親しまれてきた八千代の鍋料理。</li>
+              <li>提供時期・店舗・イベントは変わるため、お出かけ前に最新情報を確認。</li>
+            </ul>
+          </article>
+          <article class="topic-card">
+            <h3>新川の花がつなぐ四季</h3>
+            <p>市の中央を南北に流れる新川は、散策や釣りを楽しめる水辺。春の桜や秋の彼岸花など、季節ごとに違う表情を見せ、市民の憩いの場になっています。</p>
+            <ul>
+              <li>春は新川沿いの桜並木「新川千本桜」を訪ね、川辺の景色を楽しむ。</li>
+              <li>秋は彼岸花が彩る時期をチェック。見頃は天候によって変わります。</li>
+              <li>市の紹介では、京成バラ園に約1万株、彼岸花に20万株以上の規模が紹介されています。</li>
+            </ul>
+          </article>
+          <article class="topic-card">
+            <h3>遺跡・祭礼から歴史をたどる</h3>
+            <p>八千代では約3万年前から人々が暮らしていたことを示す遺跡が見つかっています。石造物や寺社、神楽などを知ると、今のまちの景色に積み重なった時間が感じられます。</p>
+            <ul>
+              <li>郷土博物館で地域の歴史を学んでから、まちの文化財を訪ねる。</li>
+              <li>村上の神楽をはじめ、地域に伝わる民俗行事や祭礼に注目。</li>
+              <li>公開日や祭礼の日程は限られることがあるため、事前に確認。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
       <section class="seasons" aria-labelledby="season-title">
         <div class="seasons-heading">
           <div>
@@ -587,10 +843,71 @@
           <p class="seasons-intro">散歩や花めぐり、地元の味。訪れる季節を変えれば、八千代の新しい楽しみ方が見つかります。</p>
         </div>
         <ul class="season-list">
-          <li><strong>春</strong><span>花が彩る季節。バラ園や川沿いをのんびり散策。</span></li>
-          <li><strong>夏</strong><span>新川の水辺へ。風を感じながら気分転換。</span></li>
-          <li><strong>秋</strong><span>実りの季節。直売所で旬の地元野菜を探して。</span></li>
-          <li><strong>冬</strong><span>澄んだ空気の中で、いつものまちをゆっくり歩く。</span></li>
+          <li><strong>春</strong><span>新川千本桜や水辺の散歩道で、川沿いを彩る花景色を楽しむ。</span></li>
+          <li><strong>夏</strong><span>八千代ふるさと親子祭などの催しや、旬を迎える梨の季節。</span></li>
+          <li><strong>秋</strong><span>彼岸花や秋バラをめぐり、実りの農産物や地域の祭りを味わう。</span></li>
+          <li><strong>冬</strong><span>澄んだ空気の中で、新川沿いや公園をゆっくり散策。</span></li>
+        </ul>
+        <p class="guide-note">※花の見頃、祭りの開催日、農産物の販売時期は年によって変わります。最新情報をご確認ください。</p>
+      </section>
+
+      <section class="day-trips" aria-labelledby="trip-title">
+        <div class="guide-heading">
+          <p class="section-label">MAKE A DAY OF IT</p>
+          <h2 id="trip-title">目的で選ぶ、八千代の過ごし方</h2>
+          <p class="guide-intro">行きたい場所をひとつ決めて、近くの楽しみを足してみましょう。以下は組み合わせの例です。移動時間や営業情報を確認して、自分らしい一日に。</p>
+        </div>
+        <div class="trip-grid">
+          <article class="trip-card">
+            <h3>水辺と花をめぐる日</h3>
+            <p>新川の景色と季節の花を主役にした、のんびり散策プラン。</p>
+            <ol>
+              <li>朝の涼しい時間に新川沿いを歩く、または自転車で走る。</li>
+              <li>花の見頃に合わせて新川千本桜や彼岸花のエリアを訪ねる。</li>
+              <li>京成バラ園の開園情報を確認し、花と香りを楽しむ。</li>
+            </ol>
+          </article>
+          <article class="trip-card">
+            <h3>八千代の味を探す日</h3>
+            <p>農産物とご当地グルメを通じて、土地の恵みを味わうプラン。</p>
+            <ol>
+              <li>道の駅やちよ周辺で、地元農産物や交流センターの催しをチェック。</li>
+              <li>季節の梨や野菜など、その時期ならではの食材を探す。</li>
+              <li>市内の参加店で八千代カレーなどのご当地グルメを味わう。</li>
+            </ol>
+          </article>
+          <article class="trip-card">
+            <h3>歴史と地域文化を知る日</h3>
+            <p>展示や文化財を入口に、八千代の成り立ちと受け継がれる営みを知るプラン。</p>
+            <ol>
+              <li>八千代市立郷土博物館で地域の歴史を学ぶ。</li>
+              <li>村上の神楽や市内の文化財について、公開・開催情報を調べる。</li>
+              <li>駅周辺や昔ながらの街並みを歩き、現在の暮らしと見比べる。</li>
+            </ol>
+          </article>
+          <article class="trip-card">
+            <h3>駅ごとの街の表情を比べる日</h3>
+            <p>二つの鉄道路線を使い、駅前の雰囲気やお店の違いを楽しむプラン。</p>
+            <ol>
+              <li>京成本線の八千代台・京成大和田・勝田台周辺を歩く。</li>
+              <li>東葉高速線の八千代緑が丘・八千代中央・村上周辺へ移動。</li>
+              <li>お気に入りの駅前で休憩し、地域のイベント情報を探す。</li>
+            </ol>
+          </article>
+        </div>
+      </section>
+
+      <section class="official-links" aria-labelledby="official-title">
+        <div class="guide-heading">
+          <p class="section-label">PLAN YOUR VISIT</p>
+          <h2 id="official-title">最新情報を調べて、もっと楽しむ</h2>
+          <p class="guide-intro">イベントや花の見頃、施設の営業状況は変わります。詳しい場所や開催情報は、八千代市の公式情報で確認してからお出かけください。</p>
+        </div>
+        <ul>
+          <li><a href="https://www.city.yachiyo.lg.jp/site/promo/" target="_blank" rel="noopener noreferrer">八千代市シティプロモーション・観光特設サイト</a></li>
+          <li><a href="https://www.city.yachiyo.lg.jp/site/map/61145.html" target="_blank" rel="noopener noreferrer">市公式の観光施設・観光スポットマップ</a></li>
+          <li><a href="https://www.city.yachiyo.lg.jp/site/promo/60524.html" target="_blank" rel="noopener noreferrer">八千代市の文化財・地域の歴史</a></li>
+          <li><a href="https://www.city.yachiyo.lg.jp/site/kankou/3419.html" target="_blank" rel="noopener noreferrer">観光・街歩きアプリ「ココシルやちよ」</a></li>
         </ul>
       </section>
 
