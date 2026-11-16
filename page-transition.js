@@ -2,6 +2,9 @@ const curtain = document.querySelector(".loading-curtain");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 if (curtain && !reducedMotion.matches) {
+  const openDuration = Math.floor(Math.random() * 5) + 1;
+  curtain.style.setProperty("--curtain-open-duration", `${openDuration}s`);
+
   let navigating = false;
 
   document.addEventListener("click", (event) => {

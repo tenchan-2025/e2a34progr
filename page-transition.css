@@ -12,7 +12,7 @@
   left: 0;
   width: 50%;
   background: linear-gradient(90deg, #52796f 0%, #789b83 58%, #b7c9a8 100%);
-  animation: curtain-open 1.5s cubic-bezier(0.76, 0, 0.24, 1) 1.8s forwards;
+  animation: curtain-open var(--curtain-open-duration, 1.5s) cubic-bezier(0.76, 0, 0.24, 1) 1.8s forwards;
 }
 
 .loading-curtain-panel:nth-child(2) {
