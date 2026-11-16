@@ -2,8 +2,8 @@ const curtain = document.querySelector(".loading-curtain");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 if (curtain && !reducedMotion.matches) {
-  const spinDuration = Math.floor(Math.random() * 5) + 1;
-  curtain.style.setProperty("--loading-spin-duration", `${spinDuration}s`);
+  const openDelay = Math.floor(Math.random() * 5) + 1;
+  curtain.style.setProperty("--curtain-open-delay", `${openDelay}s`);
 
   let navigating = false;
 

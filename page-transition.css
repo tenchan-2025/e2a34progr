@@ -12,7 +12,7 @@
   left: 0;
   width: 50%;
   background: linear-gradient(90deg, #52796f 0%, #789b83 58%, #b7c9a8 100%);
-  animation: curtain-open 1.5s cubic-bezier(0.76, 0, 0.24, 1) 1.8s forwards;
+  animation: curtain-open 1.5s cubic-bezier(0.76, 0, 0.24, 1) var(--curtain-open-delay, 1.8s) forwards;
 }
 
 .loading-curtain-panel:nth-child(2) {
@@ -40,7 +40,7 @@
   );
   clip-path: polygon(50% 0, 89% 19%, 99% 61%, 72% 96%, 28% 96%, 1% 61%, 11% 19%);
   transform: translate(-50%, -50%);
-  animation: loading-spin var(--loading-spin-duration, 800ms) linear infinite, loading-mark-hide 200ms ease 1.65s forwards;
+  animation: loading-spin 800ms linear infinite, loading-mark-hide 200ms ease var(--curtain-open-delay, 1.8s) forwards;
 }
 
 .loading-mark::after {
