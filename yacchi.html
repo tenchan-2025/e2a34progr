@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f6f7ef">
-    <meta name="description" content="千葉県八千代市の自然や見どころ、まちの魅力を紹介します。">
-    <title>八千代市の紹介 | ホームページ</title>
+    <meta name="description" content="新川の水辺、京成バラ園、地元の味。自然と暮らしが調和する千葉県八千代市の魅力を紹介します。">
+    <title>八千代市の魅力 | 水辺と花のまち</title>
     <style>
       :root {
         --text-size-scale: 0.875;
@@ -70,26 +70,54 @@
       .intro {
         position: relative;
         display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+        align-items: center;
         min-height: 390px;
-        align-content: center;
         overflow: hidden;
         padding: 64px clamp(28px, 8vw, 96px);
-        background-color: #e7eddc;
-        background-image: repeating-linear-gradient(145deg, transparent 0 44px, rgb(47 115 84 / 7%) 45px 46px, transparent 47px 88px);
+        background:
+          radial-gradient(ellipse at 86% 20%, rgb(255 255 255 / 62%), transparent 32%),
+          repeating-linear-gradient(145deg, transparent 0 44px, rgb(47 115 84 / 5%) 45px 46px, transparent 47px 88px),
+          linear-gradient(120deg, #e7eddc, #e3eee8);
         animation: arrive 700ms ease-out both;
       }
 
-      .intro::after {
-        position: absolute;
-        right: 9%;
-        bottom: -132px;
-        width: 360px;
-        aspect-ratio: 1;
-        border: 1px solid rgb(47 115 84 / 24%);
-        border-radius: 50%;
-        box-shadow: 0 0 0 28px rgb(47 115 84 / 5%), 0 0 0 58px rgb(47 115 84 / 5%);
-        content: "";
-        pointer-events: none;
+      .intro-art {
+        z-index: 1;
+        width: 100%;
+        max-width: 360px;
+        justify-self: end;
+        filter: drop-shadow(0 18px 20px rgb(36 82 61 / 12%));
+      }
+
+      .intro-art svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .quick-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 20px 0 4px;
+      }
+
+      .quick-nav a {
+        padding: 9px 15px;
+        border: 1px solid #dce2d7;
+        border-radius: 999px;
+        background: #fff;
+        color: #397454;
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background-color 160ms ease, transform 160ms ease;
+      }
+
+      .quick-nav a:hover {
+        transform: translateY(-2px);
+        background: #e7eddc;
       }
 
       .eyebrow {
@@ -192,10 +220,24 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      .spot-highlights {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .highlight {
-        padding-top: 18px;
+        min-height: 175px;
+        padding: 22px;
+        border: 1px solid #e3e7df;
         border-top: 3px solid #8eaa76;
+        border-radius: 4px 4px 16px 16px;
+        background: #fff;
+        transition: transform 160ms ease, box-shadow 160ms ease;
         animation: arrive 700ms ease-out both;
+      }
+
+      .highlight:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 28px rgb(32 53 44 / 8%);
       }
 
       .highlight:nth-child(2) {
@@ -221,6 +263,71 @@
         line-height: 1.9;
       }
 
+      .seasons {
+        padding-block: 60px;
+        border-bottom: 1px solid #dce2d7;
+      }
+
+      .seasons-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .seasons-heading .section-label {
+        margin-top: 0;
+      }
+
+      .seasons-intro {
+        max-width: 440px;
+        margin: 0;
+        color: #59685e;
+        font-size: 0.9375rem;
+        line-height: 1.9;
+      }
+
+      .season-list {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin: 28px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .season-list li {
+        min-height: 136px;
+        padding: 18px;
+        border-radius: 14px;
+        background: linear-gradient(145deg, #fff, #edf2e8);
+      }
+
+      .season-list li:nth-child(2) {
+        background: linear-gradient(145deg, #fff, #f8ece5);
+      }
+
+      .season-list li:nth-child(3) {
+        background: linear-gradient(145deg, #fff, #e8f0ed);
+      }
+
+      .season-list li:nth-child(4) {
+        background: linear-gradient(145deg, #fff, #f2eee4);
+      }
+
+      .season-list strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #274c37;
+        font-size: 1rem;
+      }
+
+      .season-list span {
+        color: #59685e;
+        font-size: 0.875rem;
+        line-height: 1.8;
+      }
+
       .home-link {
         display: inline-flex;
         align-items: center;
@@ -234,7 +341,8 @@
       }
 
       .brand:focus-visible,
-      .home-link:focus-visible {
+      .home-link:focus-visible,
+      .quick-nav a:focus-visible {
         outline: 3px solid #b25b48;
         outline-offset: 4px;
       }
@@ -276,12 +384,19 @@
         }
 
         .intro {
+          grid-template-columns: 1fr;
           min-height: 340px;
-          padding: 48px 28px;
+          padding: 44px 28px 32px;
         }
 
-        .intro::after {
-          right: -120px;
+        .intro-art {
+          width: min(58%, 220px);
+          margin-top: 16px;
+          margin-right: 0;
+        }
+
+        .intro-copy {
+          max-width: 480px;
         }
 
         .city-facts {
@@ -306,6 +421,28 @@
           grid-template-columns: 1fr;
           gap: 22px;
           padding-top: 12px;
+        }
+
+        .railway-highlights {
+          grid-template-columns: 1fr;
+        }
+
+        .highlight {
+          min-height: 0;
+        }
+
+        .seasons {
+          padding-block: 42px;
+        }
+
+        .seasons-heading {
+          align-items: start;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .season-list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .site-footer {
@@ -345,9 +482,28 @@
     </header>
     <main>
       <section class="intro" aria-labelledby="page-title">
-        <p class="eyebrow">CHIBA · JAPAN</p>
-        <h1 id="page-title">八千代市</h1>
-        <p class="intro-copy">千葉県北西部に位置する八千代市。新川の水辺や花の景色、便利な交通網が身近にある、暮らしやすさと自然が調和したまちです。</p>
+        <div class="intro-text">
+          <p class="eyebrow">CHIBA · JAPAN</p>
+          <h1 id="page-title">八千代市</h1>
+          <p class="intro-copy">千葉県北西部に位置する八千代市。新川の水辺や花の景色、便利な交通網が身近にある、暮らしやすさと自然が調和したまちです。</p>
+        </div>
+        <div class="intro-art" aria-hidden="true">
+          <svg viewBox="0 0 360 270" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="269" cy="67" r="37" fill="#F2C878"/>
+            <path d="M22 171C68 124 102 130 145 164C184 194 216 160 252 137C285 116 315 126 345 151V228H22V171Z" fill="#8DAF83"/>
+            <path d="M22 193C74 161 110 172 149 198C195 229 242 177 280 163C306 153 328 165 345 178V242H22V193Z" fill="#527F68"/>
+            <path d="M155 188C185 176 211 171 237 176C261 181 277 199 300 202C315 204 331 199 345 192V270H155V188Z" fill="#A9D7D1"/>
+            <path d="M173 193C197 188 214 186 234 190C256 195 276 213 298 216C315 219 330 214 345 208" stroke="#E7F5E9" stroke-width="5" stroke-linecap="round"/>
+            <path d="M64 160C83 139 99 138 117 151" stroke="#E6EFDB" stroke-width="4" stroke-linecap="round"/>
+            <path d="M73 151C74 135 83 126 98 123C97 140 89 149 73 151Z" fill="#D9E7C8"/>
+            <path d="M101 150C106 136 117 131 132 134C125 149 115 154 101 150Z" fill="#D9E7C8"/>
+            <circle cx="224" cy="89" r="5" fill="#E59A7E"/>
+            <circle cx="239" cy="96" r="5" fill="#E59A7E"/>
+            <circle cx="254" cy="88" r="5" fill="#E59A7E"/>
+            <circle cx="239" cy="80" r="5" fill="#E59A7E"/>
+            <circle cx="239" cy="89" r="4" fill="#C77A53"/>
+          </svg>
+        </div>
       </section>
 
       <dl class="city-facts" aria-label="八千代市の基本情報">
@@ -364,6 +520,13 @@
           <dd>バラ</dd>
         </div>
       </dl>
+
+      <nav class="quick-nav" aria-label="ページ内メニュー">
+        <a href="#about-title">八千代ってどんなまち？</a>
+        <a href="#railway-title">アクセス</a>
+        <a href="#spots-title">見どころ</a>
+        <a href="#season-title">四季の楽しみ</a>
+      </nav>
 
       <section class="content-section" aria-labelledby="about-title">
         <div>
@@ -395,7 +558,7 @@
           <p class="section-label">PLACES TO DISCOVER</p>
           <h2 id="spots-title">八千代の楽しみ</h2>
         </div>
-        <div class="highlights">
+        <div class="highlights spot-highlights">
           <article class="highlight">
             <h3>新川の水辺</h3>
             <p>川沿いの遊歩道や自転車道は、散歩やサイクリングにぴったり。水辺の景色を眺めながら、ゆったり過ごせます。</p>
@@ -405,10 +568,30 @@
             <p>多彩なバラを楽しめる、八千代を代表する花の名所。見頃の季節には、園内が華やかな色と香りに包まれます。</p>
           </article>
           <article class="highlight">
-            <h3>地元の味と出会う</h3>
-            <p>農産物直売所や地域の催しを訪ねれば、八千代で育った農産物や地域の人々の活動に触れられます。</p>
+            <h3>道の駅やちよ</h3>
+            <p>新鮮な地元農産物との出会いも楽しみのひとつ。隣接するやちよ農業交流センターでは、農業や食にふれる体験も楽しめます。</p>
+          </article>
+          <article class="highlight">
+            <h3>まちの歴史にふれる</h3>
+            <p>八千代市立郷土博物館で、川や農業とともに歩んできた地域の歴史を知ると、いつもの風景が少し違って見えてきます。</p>
           </article>
         </div>
+      </section>
+
+      <section class="seasons" aria-labelledby="season-title">
+        <div class="seasons-heading">
+          <div>
+            <p class="section-label">A YEAR IN YACHIYO</p>
+            <h2 id="season-title">季節ごとに、違う景色に出会う</h2>
+          </div>
+          <p class="seasons-intro">散歩や花めぐり、地元の味。訪れる季節を変えれば、八千代の新しい楽しみ方が見つかります。</p>
+        </div>
+        <ul class="season-list">
+          <li><strong>春</strong><span>花が彩る季節。バラ園や川沿いをのんびり散策。</span></li>
+          <li><strong>夏</strong><span>新川の水辺へ。風を感じながら気分転換。</span></li>
+          <li><strong>秋</strong><span>実りの季節。直売所で旬の地元野菜を探して。</span></li>
+          <li><strong>冬</strong><span>澄んだ空気の中で、いつものまちをゆっくり歩く。</span></li>
+        </ul>
       </section>
 
       <a class="home-link" href="index.html"><span aria-hidden="true">←</span> ホームに戻る</a>
