@@ -129,7 +129,7 @@
         gap: 12px;
         padding: 14px 21px;
         border-radius: 999px;
-        background: #6254c7;
+        background: var(--button-color);
         color: #fff;
         font-size: 0.9375rem;
         font-weight: 700;
@@ -139,15 +139,42 @@
 
       .hero-link:hover {
         transform: translateY(-2px);
-        background: #5043b0;
+        background: var(--button-hover-color);
+      }
+
+      .hero-link-calculator {
+        --button-color: #5b5fc7;
+        --button-hover-color: #4449a8;
       }
 
       .hero-link-city {
-        background: #2f7354;
+        --button-color: #2f7354;
+        --button-hover-color: #245c42;
       }
 
-      .hero-link-city:hover {
-        background: #245c42;
+      .hero-link-electric {
+        --button-color: #b45309;
+        --button-hover-color: #8f3f06;
+      }
+
+      .hero-link-timer {
+        --button-color: #0e7490;
+        --button-hover-color: #0a5b71;
+      }
+
+      .hero-link-audio {
+        --button-color: #be123c;
+        --button-hover-color: #990f32;
+      }
+
+      .hero-link-classic {
+        --button-color: #6d28d9;
+        --button-hover-color: #551eab;
+      }
+
+      .hero-link-classic-light {
+        --button-color: #374151;
+        --button-hover-color: #252d3b;
       }
 
       .hero-link:focus-visible,
@@ -237,13 +264,13 @@
         <h1 id="hero-title">ホームページ</h1>
         <p class="hero-copy">計算機やタイマーなどのツール、八千代市の紹介をご覧いただけます。</p>
         <div class="hero-actions">
-          <a class="hero-link" href="calc.html">計算機を使う <span aria-hidden="true">→</span></a>
+          <a class="hero-link hero-link-calculator" href="calc.html">計算機を使う <span aria-hidden="true">→</span></a>
           <a class="hero-link hero-link-city" href="yacchi.html">八千代市を知る <span aria-hidden="true">→</span></a>
-          <a class="hero-link" href="ElectricUtils.html">電気回路計算・単位換算 <span aria-hidden="true">→</span></a>
-          <a class="hero-link" href="supertimer.html">多機能タイマー・時計 <span aria-hidden="true">→</span></a>
-          <a class="hero-link" href="LRtest.html">スピーカーL/R・位相チェック <span aria-hidden="true">→</span></a>
-          <a class="hero-link" href="Calculator-ClassicF.html">電卓（クラシック） <span aria-hidden="true">→</span></a>
-          <a class="hero-link" href="Calculator-ClassicL.html">電卓（超軽量版） <span aria-hidden="true">→</span></a>
+          <a class="hero-link hero-link-electric" href="ElectricUtils.html">電気回路計算・単位換算 <span aria-hidden="true">→</span></a>
+          <a class="hero-link hero-link-timer" href="supertimer.html">多機能タイマー・時計 <span aria-hidden="true">→</span></a>
+          <a class="hero-link hero-link-audio" href="LRtest.html">スピーカーL/R・位相チェック <span aria-hidden="true">→</span></a>
+          <a class="hero-link hero-link-classic" href="Calculator-ClassicF.html">電卓（クラシック） <span aria-hidden="true">→</span></a>
+          <a class="hero-link hero-link-classic-light" href="Calculator-ClassicL.html">電卓（超軽量版） <span aria-hidden="true">→</span></a>
         </div>
       </section>
     </main>
