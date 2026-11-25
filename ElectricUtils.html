@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合成抵抗計算機</title>
+    
+    <!-- オフライン対応のため、Tailwind CSS CDNを削除し、必要なスタイルを埋め込みました -->
+    <style>
+        /* CSSカスタムプロパティで色定義（Tailwindの色を再現） */
+        :root {
+            --color-gray-100: #f3f4f6;
+            --color-white: #ffffff;
+            --color-gray-800: #1f2937;
+            --color-gray-700: #374151;
+            --color-gray-600: #4b5563;
+            --color-indigo-600: #4f46e5;
+            --color-indigo-800: #3730a3;
+            --color-indigo-50: #eef2ff;
+            --color-blue-500: #3b82f6;
+            --color-blue-800: #1e40af;
+            --color-blue-50: #eff6ff;
+            --color-purple-500: #8b5cf6;
+            --color-purple-800: #5b21b6;
+            --color-purple-50: #f5f3ff;
+            --color-yellow-50: #fffbeb;
+            --color-red-600: #dc2626;
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --rounded-xl: 0.75rem;
+            --rounded-lg: 0.5rem;
+            --rounded-tl-xl: 0.75rem;
+        }
+
+        /* 共通レイアウトと背景 */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-gray-100);
+            min-height: 100vh;
+            padding: 1rem; /* p-4 */
+        }
+        @media (min-width: 640px) { /* sm:p-8 */
+            body {
+                padding: 2rem;
+            }
+        }
+        
+        #app {
+            max-width: 1024px; /* max-w-4xl */
+            margin-left: auto;
+            margin-right: auto; /* mx-auto */
+            background-color: var(--color-white);
+            box-shadow: var(--shadow-xl);
+            border-radius: var(--rounded-xl);
+        }
+
+        /* ユーティリティクラスの再現 */
+        .flex { display: flex; }
+        .flex-1 { flex-grow: 1; }
+        .flex-col { flex-direction: column; }
+        .justify-center { justify-content: center; }
+        .items-center { align-items: center; }
+        .items-end { align-items: flex-end; }
+        .grid { display: grid; }
+        .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        @media (min-width: 768px) { /* md:grid-cols-4 */
+            .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        .gap-4 { gap: 1rem; }
+        .space-x-4 > * + * { margin-left: 1rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .w-full { width: 100%; }
+        .max-w-sm { max-width: 24rem; }
+        .hidden { display: none !important; }
+        .block { display: block; }
+        .relative { position: relative; }
+        .text-center { text-align: center; }
+
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mt-8 { margin-top: 2rem; }
+
+        /* Typography */
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .font-bold { font-weight: 700; }
+        .font-extrabold { font-weight: 800; }
+        .font-semibold { font-weight: 600; }
+        .font-medium { font-weight: 500; }
+
+        /* Colors and Borders */
+        .text-gray-800 { color: var(--color-gray-800); }
+        .text-gray-700 { color: var(--color-gray-700); }
+        .text-gray-600 { color: var(--color-gray-600); }
+        .text-gray-500 { color: #6b7280; }
+        .text-indigo-800 { color: var(--color-indigo-800); }
+        .text-purple-800 { color: var(--color-purple-800); }
+        .text-blue-800 { color: var(--color-blue-800); }
+        .text-red-600 { color: var(--color-red-600); }
+
+        .bg-gray-50 { background-color: #f9fafb; }
+        .bg-indigo-50 { background-color: var(--color-indigo-50); }
+        .bg-purple-50 { background-color: var(--color-purple-50); }
+        .bg-blue-50 { background-color: var(--color-blue-50); }
+        .bg-yellow-50 { background-color: var(--color-yellow-50); }
+
+        .border { border-width: 1px; border-color: #d1d5db; }
+        .border-b { border-bottom-width: 1px; border-bottom-color: #e5e7eb; }
+        .border-gray-200 { border-color: #e5e7eb; }
+        .border-gray-300 { border-color: #d1d5db; }
+        .border-yellow-200 { border-color: #fde68a; }
+        .border-purple-200 { border-color: #dcd0fe; }
+        .border-blue-200 { border-color: #bfdbfe; }
+        .border-transparent { border-color: transparent; }
+        .border-b-2 { border-bottom-width: 2px; }
+
+        .rounded-xl { border-radius: var(--rounded-xl); }
+        .rounded-lg { border-radius: var(--rounded-lg); }
+        .rounded-tl-xl { border-top-left-radius: var(--rounded-tl-xl); }
+        .rounded-tr-xl { border-top-right-radius: var(--rounded-xl); }
+        
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+
+        /* Focus & Active States */
+        .tab-button {
+            transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+        }
+        .tab-button:hover { background-color: var(--color-gray-100); }
+        .tab-button[data-active='true'] {
+            color: var(--color-indigo-600);
+            border-bottom-color: var(--color-indigo-600);
+        }
+
+        .cursor-pointer { cursor: pointer; }
+        .hover\:bg-indigo-100:hover { background-color: #e0e7ff; }
+        .hover\:bg-purple-100:hover { background-color: #ede9fe; }
+
+        input:focus, select:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: var(--color-indigo-600);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.5); 
+        }
+
+        /* フォーム要素の基本スタイル調整 */
+        .form-radio {
+            color: var(--color-indigo-600);
+        }
+
+        /* --- カスタムスタイル --- */
+        /* カラーコード表示のスタイル */
+        .color-band {
+            width: 20px;
+            height: 40px;
+            margin: 0 4px;
+            border-radius: 4px;
+            box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        /* 抵抗器の全体的な形状 */
+        .resistor-body {
+            background-color: #f7e0a8; /* 薄い黄色 */
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 10px;
+            margin: 10px auto;
+            max-width: 300px;
+            position: relative;
+        }
+        /* 抵抗器のリード線 */
+        .resistor-body::before, .resistor-body::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 50px;
+            height: 2px;
+            background-color: #888;
+        }
+        .resistor-body::before { left: -50px; }
+        .resistor-body::after { right: -50px; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 sm:p-8">
+
+<div id="app" class="max-w-4xl mx-auto bg-white shadow-xl rounded-xl">
+    <header class="p-6 border-b border-gray-200">
+        <h1 class="text-3xl font-bold text-gray-800">電気回路計算 & 単位換算ツール</h1>
+    </header>
+
+    <!-- タブボタン -->
+    <div class="flex border-b border-gray-200 bg-gray-50">
+        <button onclick="showTab('resistance')" class="tab-button p-4 text-center flex-1 font-semibold text-gray-600 rounded-tl-xl border-b-2 border-transparent data-[active='true']:text-indigo-600 data-[active='true']:border-indigo-600" data-tab="resistance" data-active="true">合成抵抗計算機</button>
+        <button onclick="showTab('colorcode-reader')" class="tab-button p-4 text-center flex-1 font-semibold text-gray-600 border-b-2 border-transparent data-[active='true']:text-indigo-600 data-[active='true']:border-indigo-600" data-tab="colorcode-reader">カラーコード読取</button>
+        <button onclick="showTab('unit-converter')" class="tab-button p-4 text-center flex-1 font-semibold text-gray-600 rounded-tr-xl border-b-2 border-transparent data-[active='true']:text-indigo-600 data-[active='true']:border-indigo-600" data-tab="unit-converter">単位換算</button>
+    </div>
+
+    <!-- タブコンテンツ -->
+    <div id="tab-content" class="p-6">
+        <!-- 1. 合成抵抗計算機 -->
+        <div id="resistance" class="tab-page" data-tab="resistance">
+            <h2 class="text-2xl font-bold mb-4 text-gray-700">合成抵抗計算</h2>
+
+            <!-- 接続方法選択 -->
+            <div class="mb-6">
+                <div class="flex space-x-4 mb-2">
+                    <label class="flex items-center space-x-2 cursor-pointer p-3 border rounded-lg shadow-sm bg-indigo-50 hover:bg-indigo-100 transition">
+                        <input type="radio" name="connectionType" value="series" checked onchange="calculateTotalResistance()" class="form-radio text-indigo-600">
+                        <span class="font-medium text-gray-700">直列接続</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer p-3 border rounded-lg shadow-sm bg-indigo-50 hover:bg-indigo-100 transition">
+                        <input type="radio" name="connectionType" value="parallel" onchange="calculateTotalResistance()" class="form-radio text-indigo-600">
+                        <span class="font-medium text-gray-700">並列接続</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- 抵抗値入力（単一欄） -->
+            <div class="mb-6">
+                <label for="resistors-input" class="block text-sm font-medium text-gray-700 mb-1">
+                    抵抗値をコンマ「,」または半角スペースで区切って入力 (例: 100, 1k, 470)
+                </label>
+                <input type="text" id="resistors-input" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm" 
+                    oninput="calculateTotalResistance()" placeholder="例: 100, 1k, 470">
+                <p id="input-error" class="text-sm text-red-600 mt-1 hidden">無効な入力値があります。正の数値または許容される単位（k, M）で入力してください。</p>
+            </div>
+
+            <!-- 結果表示 -->
+            <div id="resistance-result" class="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg hidden">
+                <h3 class="text-xl font-bold text-gray-700 mb-2">計算結果:</h3>
+                <p class="text-2xl font-extrabold text-indigo-800">合成抵抗: <span id="r-value"></span></p>
+            </div>
+
+            <!-- 計算結果のカラーコード表示 -->
+            <div id="resistor-colorcode-display" class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hidden">
+                <h3 class="text-xl font-bold text-gray-700 mb-4">計算結果を抵抗カラーコードで表示</h3>
+                <div class="flex justify-center items-center flex-col space-y-4">
+                    <!-- 4帯表示 -->
+                    <div class="p-2 border border-gray-300 rounded-lg w-full max-w-sm">
+                        <p class="font-medium mb-2 text-gray-600">4帯抵抗器 (有効数字2桁 + 乗数 + 許容差)</p>
+                        <div class="resistor-body relative">
+                            <div id="resistor-4band" class="flex"></div>
+                        </div>
+                        <p id="resistor-4band-info" class="text-sm text-gray-500 mt-2 text-center"></p>
+                    </div>
+
+                    <!-- 5帯表示 -->
+                    <div class="p-2 border border-gray-300 rounded-lg w-full max-w-sm">
+                        <p class="font-medium mb-2 text-gray-600">5帯抵抗器 (有効数字3桁 + 乗数 + 許容差)</p>
+                        <div class="resistor-body relative">
+                            <div id="resistor-5band" class="flex"></div>
+                        </div>
+                        <p id="resistor-5band-info" class="text-sm text-gray-500 mt-2 text-center"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. カラーコード読取 -->
+        <div id="colorcode-reader" class="tab-page hidden" data-tab="colorcode-reader">
+            <h2 class="text-2xl font-bold mb-4 text-gray-700">抵抗カラーコード読取</h2>
+
+            <!-- 帯数選択 -->
+            <div class="mb-6 flex space-x-4">
+                <label class="flex items-center space-x-2 cursor-pointer p-3 border rounded-lg shadow-sm bg-purple-50 hover:bg-purple-100 transition">
+                    <input type="radio" name="bandCount" value="4" checked onchange="updateColorCodeReaderUI()" class="form-radio text-purple-600">
+                    <span class="font-medium text-gray-700">4帯 (D1, D2, M, T)</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer p-3 border rounded-lg shadow-sm bg-purple-50 hover:bg-purple-100 transition">
+                    <input type="radio" name="bandCount" value="5" onchange="updateColorCodeReaderUI()" class="form-radio text-purple-600">
+                    <span class="font-medium text-gray-700">5帯 (D1, D2, D3, M, T)</span>
+                </label>
+            </div>
+
+            <!-- カラーコード選択UI -->
+            <div class="flex justify-center items-center py-4 px-2">
+                <div id="reader-resistor-body" class="resistor-body flex space-x-1">
+                    <!-- 帯の選択ドロップダウンがここに追加される -->
+                </div>
+            </div>
+
+            <div id="reader-select-controls" class="grid sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                <!-- 選択コントロールがここに追加される -->
+            </div>
+
+            <!-- 読取結果表示 -->
+            <div id="reader-result" class="mt-8 p-4 bg-purple-50 border border-purple-200 rounded-lg hidden">
+                <h3 class="text-xl font-bold text-gray-700 mb-2">読取結果:</h3>
+                <!-- R を削除済み -->
+                <p class="text-2xl font-extrabold text-purple-800">抵抗値: <span id="read-value"></span></p>
+                <p class="text-lg font-medium text-gray-700">許容差: <span id="read-tolerance"></span></p>
+            </div>
+        </div>
+
+        <!-- 3. 単位換算 -->
+        <div id="unit-converter" class="tab-page hidden" data-tab="unit-converter">
+            <h2 class="text-2xl font-bold mb-4 text-gray-700">電気単位換算 ($V, A, W, \Omega$ 等)</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <!-- 換算元入力 -->
+                <div>
+                    <label for="convert-type" class="block text-sm font-medium text-gray-700 mb-1">物理量を選択</label>
+                    <select id="convert-type" onchange="updateUnitConverterUI()" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm">
+                        <option value="voltage">電圧 (V)</option>
+                        <option value="current">電流 (A)</option>
+                        <option value="power">電力 (W)</option>
+                        <option value="resistance">抵抗 (Ω)</option>
+                        <option value="capacitance">静電容量 (F)</option>
+                        <option value="inductance">インダクタンス (H)</option>
+                        <option value="frequency">周波数 (Hz)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="convert-value" class="block text-sm font-medium text-gray-700 mb-1">値を入力</label>
+                    <!-- value="10" を削除 -->
+                    <input type="number" id="convert-value" step="any" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm" oninput="performUnitConversion()" placeholder="数値を入力">
+                </div>
+            </div>
+
+            <!-- 単位選択と換算ボタン -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div>
+                    <label for="convert-from-unit" class="block text-sm font-medium text-gray-700 mb-1">換算元単位</label>
+                    <select id="convert-from-unit" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm" onchange="performUnitConversion()"></select>
+                </div>
+                <div>
+                    <label for="convert-to-unit" class="block text-sm font-medium text-gray-700 mb-1">換算先単位</label>
+                    <select id="convert-to-unit" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm" onchange="performUnitConversion()"></select>
+                </div>
+                <div class="sm:col-span-1 flex items-end">
+                    <!-- 換算ボタンは自動計算のため削除 -->
+                </div>
+            </div>
+
+            <!-- 換算結果表示 -->
+            <div id="converter-result" class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg hidden">
+                <h3 class="text-xl font-bold text-gray-700 mb-2">換算結果:</h3>
+                <p class="text-2xl font-extrabold text-blue-800" id="conversion-output">結果</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- グローバル定数とユーティリティ関数 ---
+
+    // カラーコード定義 (温度係数ppmを削除)
+    const COLOR_CODES = {
+        '黒': { value: 0, color: 'rgb(0,0,0)', text: 'white', multiplier: 1e0, tolerance: null },
+        '茶': { value: 1, color: 'rgb(165,42,42)', text: 'white', multiplier: 1e1, tolerance: '±1%' },
+        '赤': { value: 2, color: 'rgb(255,0,0)', text: 'white', multiplier: 1e2, tolerance: '±2%' },
+        '橙': { value: 3, color: 'rgb(255,165,0)', text: 'black', multiplier: 1e3, tolerance: null },
+        '黄': { value: 4, color: 'rgb(255,255,0)', text: 'black', multiplier: 1e4, tolerance: null },
+        '緑': { value: 5, color: 'rgb(0,128,0)', text: 'white', multiplier: 1e5, tolerance: '±0.5%' },
+        '青': { value: 6, color: 'rgb(0,0,255)', text: 'white', multiplier: 1e6, tolerance: '±0.25%' },
+        '紫': { value: 7, color: 'rgb(128,0,128)', text: 'white', multiplier: 1e7, tolerance: '±0.1%' },
+        '灰': { value: 8, color: 'rgb(128,128,128)', text: 'white', multiplier: 1e8, tolerance: '±0.05%' },
+        '白': { value: 9, color: 'rgb(255,255,255)', text: 'black', multiplier: 1e9, tolerance: null },
+        '金': { value: null, color: 'rgb(255,215,0)', text: 'black', multiplier: 1e-1, tolerance: '±5%' },
+        '銀': { value: null, color: 'rgb(192,192,192)', text: 'black', multiplier: 1e-2, tolerance: '±10%' },
+        'なし': { value: null, color: 'rgb(255,255,255,0.1)', text: 'black', multiplier: null, tolerance: '±20%' },
+    };
+
+    // プレフィックスと単位の定義
+    const PREFIXES = [
+        { name: 'Giga', symbol: 'G', value: 1e9 },
+        { name: 'Mega', symbol: 'M', value: 1e6 },
+        { name: 'Kilo', symbol: 'k', value: 1e3 },
+        { name: 'Base', symbol: '', value: 1e0 },
+        { name: 'Milli', symbol: 'm', value: 1e-3 },
+        { name: 'Micro', symbol: 'μ', value: 1e-6 },
+        { name: 'Nano', symbol: 'n', value: 1e-9 },
+        { name: 'Pico', symbol: 'p', value: 1e-12 },
+    ];
+
+    // 単位換算用の定義
+    const UNIT_CONFIG = {
+        voltage: { base: 'V', symbol: 'V', units: ['kV', 'V', 'mV', 'μV', 'nV'] },
+        current: { base: 'A', symbol: 'A', units: ['kA', 'A', 'mA', 'μA', 'nA'] },
+        power: { base: 'W', symbol: 'W', units: ['MW', 'kW', 'W', 'mW', 'μW', 'nW'] },
+        resistance: { base: 'Ω', symbol: 'Ω', units: ['MΩ', 'kΩ', 'Ω', 'mΩ', 'μΩ'] },
+        capacitance: { base: 'F', symbol: 'F', units: ['F', 'μF', 'nF', 'pF'] },
+        inductance: { base: 'H', symbol: 'H', units: ['H', 'mH', 'μH', 'nH'] },
+        frequency: { base: 'Hz', symbol: 'Hz', units: ['GHz', 'MHz', 'kHz', 'Hz'] },
+    };
+
+    /**
+     * 抵抗値とその単位を整形する
+     * @param {number} R_base - 基本単位（Ω, V, Aなど）での値
+     * @param {string} baseUnitSymbol - 基本単位の記号 (例: 'Ω', 'V')
+     * @returns {string} 整形された文字列 (例: '10 kΩ')
+     */
+    function formatValueWithPrefix(R_base, baseUnitSymbol = 'Ω') {
+        if (R_base === 0) return `0 ${baseUnitSymbol}`;
+        let absR = Math.abs(R_base);
+        
+        let prefixes = [
+            { symbol: 'G', value: 1e9 },
+            { symbol: 'M', value: 1e6 },
+            { symbol: 'k', value: 1e3 },
+            { symbol: '', value: 1e0 },
+            { symbol: 'm', value: 1e-3 },
+            { symbol: 'μ', value: 1e-6 },
+            { symbol: 'n', value: 1e-9 },
+            { symbol: 'p', value: 1e-12 }
+        ];
+
+        // 適切なプレフィックスを見つける
+        let bestPrefix = prefixes.find(p => absR >= p.value) || prefixes.slice(3).reverse().find(p => absR >= p.value) || prefixes[3];
+
+        let scaledValue = R_base / bestPrefix.value;
+        // 有効数字4桁で表示し、末尾の不要なゼロを削除
+        return `${scaledValue.toPrecision(4).replace(/\.?0+$/, '')} ${bestPrefix.symbol}${baseUnitSymbol}`;
+    }
+
+    /**
+     * 抵抗値の文字列 (例: '10k', '1.5M') を基本単位の数値 (Ω) に変換する
+     * @param {string} input - 抵抗値文字列
+     * @returns {number | null} 変換された抵抗値 (Ω) または null（無効な場合）
+     */
+    function parseResistanceValue(input) {
+        if (!input) return null;
+        input = input.trim().toLowerCase().replace(/[ω\s]/g, ''); // Ωと空白を除去
+
+        const match = input.match(/^([\d.]+)([kmg]?)$/);
+        if (!match) return null;
+
+        let value = parseFloat(match[1]);
+        const unit = match[2];
+
+        if (isNaN(value) || value <= 0) return null;
+
+        switch (unit) {
+            case 'k': value *= 1e3; break;
+            case 'm': value *= 1e6; break;
+            case 'g': value *= 1e9; break;
+            // 単位なしはそのまま
+        }
+        return value;
+    }
+
+    /**
+     * 数値から最も近いカラーコード情報を取得する
+     * @param {number} value - 0-9の数値
+     * @returns {string} 色の名前
+     */
+    function valueToColorName(value) {
+        const colorEntry = Object.entries(COLOR_CODES).find(([_, code]) => code.value === value);
+        return colorEntry ? colorEntry[0] : '黒'; // 見つからない場合は黒を返す
+    }
+
+    /**
+     * 抵抗値から4帯/5帯のカラーコードを生成する
+     * 5帯は「D1, D2, D3, M, T」の5バンド構成
+     * @param {number} resistance - 抵抗値 (Ω)
+     * @param {number} bands - 4 or 5
+     * @returns {{colors: string[], info: string}} カラーコードの色配列と情報
+     */
+    function resistanceToColorCode(resistance, bands) {
+        if (resistance <= 0 || isNaN(resistance) || resistance > 1e12) {
+            return { colors: ['rgb(0,0,0)'], info: '無効な抵抗値です (0Ωまたは非対応範囲)' };
+        }
+
+        let bandsToUse = bands - 2; // 有効数字帯の数 (4帯なら2、5帯なら3)
+        let targetValueMax = bands === 4 ? 99.0 : 999.0;
+
+        let multiplierBand = null;
+        let bestR = resistance;
+        let M = 1e0;
+        
+        // 許容される乗数リスト (銀 1e-2 から 白 1e9 まで)
+        const multipliers = Object.entries(COLOR_CODES)
+            .filter(([_, code]) => code.multiplier !== null)
+            .map(([name, code]) => ({ name, multiplier: code.multiplier }))
+            .sort((a, b) => a.multiplier - b.multiplier); // 乗数を昇順に並べ替え
+
+        // 抵抗値を最もよく表現できる乗数を見つける
+        for (const { name, multiplier } of multipliers) {
+            const tempR = resistance / multiplier;
+            if (tempR >= 1.0 && tempR <= targetValueMax + 0.5) { // 端数処理を考慮
+                bestR = tempR;
+                multiplierBand = name;
+                M = multiplier;
+                break;
+            }
+        }
+        
+        // 有効数字部分を文字列にし、小数点以下を切り捨てる (精度を保つための丸め)
+        let digitStr = String(Math.round(bestR)).padStart(bandsToUse, '0');
+        
+        // 必要な桁数に合わせる
+        digitStr = digitStr.substring(0, bandsToUse);
+
+        // カラーバンドの配列を構築
+        const colors = [];
+        let infoText = '';
+
+        // 1. 有効数字帯
+        for (let i = 0; i < bandsToUse; i++) {
+            const digit = parseInt(digitStr[i] || '0');
+            const colorName = valueToColorName(digit);
+            colors.push(colorName);
+            infoText += `${i + 1}桁目: ${colorName} (${digit})\n`;
+        }
+
+        // 2. 乗数帯
+        const finalMultiplierBandName = multiplierBand || '黒';
+        colors.push(finalMultiplierBandName);
+        infoText += `乗数帯: ${finalMultiplierBandName} ($\times ${M}$)`;
+
+        // 3. 許容差帯 (常に「金」を使用)
+        const toleranceBandName = '金'; // 常に金 (±5%)
+        const toleranceValue = COLOR_CODES[toleranceBandName].tolerance;
+        colors.push(toleranceBandName);
+        infoText += `\n許容差帯: ${toleranceBandName} (${toleranceValue})`;
+        
+        // 最終的な抵抗値の表示
+        let finalValue = parseInt(digitStr) * M;
+        infoText = `表示抵抗値: ${formatValueWithPrefix(finalValue, 'Ω')}\n` + infoText;
+
+
+        const colorRgbArray = colors.map(name => COLOR_CODES[name].color);
+
+        return { colors: colorRgbArray, info: infoText.trim() };
+    }
+
+    // --- 単位換算ロジック (入力チェックを追加) ---
+
+    function updateUnitConverterUI() {
+        const type = document.getElementById('convert-type').value;
+        const config = UNIT_CONFIG[type];
+        const fromSelect = document.getElementById('convert-from-unit');
+        const toSelect = document.getElementById('convert-to-unit');
+
+        fromSelect.innerHTML = '';
+        toSelect.innerHTML = '';
+
+        config.units.forEach(unit => {
+            const optionFrom = document.createElement('option');
+            optionFrom.value = unit;
+            optionFrom.textContent = unit;
+            fromSelect.appendChild(optionFrom);
+
+            const optionTo = document.createElement('option');
+            optionTo.value = unit;
+            optionTo.textContent = unit;
+            toSelect.appendChild(optionTo);
+        });
+
+        fromSelect.value = config.units.includes(config.symbol) ? config.symbol : config.units[0];
+        toSelect.value = config.units[config.units.length - 1]; 
+
+        performUnitConversion();
+    }
+
+    function performUnitConversion() {
+        const type = document.getElementById('convert-type').value;
+        const valueStr = document.getElementById('convert-value').value;
+        const resultDiv = document.getElementById('converter-result');
+        const outputP = document.getElementById('conversion-output');
+
+        if (valueStr.trim() === '') {
+            outputP.textContent = '値を入力してください。';
+            resultDiv.classList.remove('hidden');
+            return;
+        }
+
+        const value = parseFloat(valueStr);
+
+        if (isNaN(value)) {
+            outputP.textContent = '有効な数値を入力してください。';
+            resultDiv.classList.remove('hidden');
+            return;
+        }
+        
+        const fromUnit = document.getElementById('convert-from-unit').value;
+        const toUnit = document.getElementById('convert-to-unit').value;
+
+
+        function getPrefixValue(unit) {
+            const config = UNIT_CONFIG[type];
+            if (unit === config.symbol || (config.base === 'F' && unit === 'F') || (config.base === 'H' && unit === 'H') || (config.base === 'Hz' && unit === 'Hz')) {
+                return 1e0;
+            }
+            
+            const prefix = unit.substring(0, unit.length - config.symbol.length);
+            const prefixObj = PREFIXES.find(p => p.symbol === prefix);
+
+            if (prefixObj) {
+                return prefixObj.value;
+            }
+
+            // 特殊ケース：Ω, F, H, Hz
+            const unitPrefixes = { 'M': 1e6, 'k': 1e3, 'm': 1e-3, 'μ': 1e-6, 'n': 1e-9, 'p': 1e-12, 'G': 1e9 };
+            for (const p in unitPrefixes) {
+                if (unit.startsWith(p)) return unitPrefixes[p];
+            }
+            
+            return 1e0; 
+        }
+
+        const fromValue = getPrefixValue(fromUnit);
+        const toValue = getPrefixValue(toUnit);
+
+        const baseValue = value * fromValue;
+        const convertedValue = baseValue / toValue;
+
+        outputP.textContent = `${formatValueWithPrefix(value, fromUnit)} = ${convertedValue.toPrecision(6).replace(/\.?0+$/, '')} ${toUnit}`;
+        resultDiv.classList.remove('hidden');
+    }
+
+
+    // --- 合成抵抗計算ロジック ---
+
+    /**
+     * 合成抵抗を計算し、結果を表示する
+     */
+    function calculateTotalResistance() {
+        const inputElement = document.getElementById('resistors-input');
+        const inputError = document.getElementById('input-error');
+        const type = document.querySelector('input[name="connectionType"]:checked').value;
+        const resultDiv = document.getElementById('resistance-result');
+
+        // 1. 入力文字列を解析
+        const rawInput = inputElement.value.trim();
+        if (rawInput === '') {
+            resultDiv.classList.add('hidden');
+            document.getElementById('resistor-colorcode-display').classList.add('hidden');
+            inputError.classList.add('hidden');
+            return;
+        }
+        
+        // コンマまたは半角スペースで分割し、空の要素を除去
+        const tokens = rawInput.split(/[\s,]+/).filter(token => token.length > 0);
+        
+        let resistances = [];
+        let hasError = false;
+
+        tokens.forEach(token => {
+            const R = parseResistanceValue(token);
+            if (R === null || R <= 0) {
+                hasError = true;
+            } else {
+                resistances.push(R);
+            }
+        });
+
+        if (hasError) {
+            inputError.classList.remove('hidden');
+            resultDiv.classList.add('hidden');
+            document.getElementById('resistor-colorcode-display').classList.add('hidden');
+            return;
+        } else {
+            inputError.classList.add('hidden');
+        }
+
+        let totalResistance = 0;
+
+        if (resistances.length === 0) {
+            totalResistance = 0;
+            resultDiv.classList.add('hidden');
+            document.getElementById('resistor-colorcode-display').classList.add('hidden');
+        } else if (type === 'series') {
+            // 直列: R_T = R1 + R2 + ...
+            totalResistance = resistances.reduce((sum, R) => sum + R, 0);
+        } else if (type === 'parallel') {
+            // 並列: 1/R_T = 1/R1 + 1/R2 + ...
+            const reciprocalSum = resistances.reduce((sum, R) => sum + (1 / R), 0);
+            totalResistance = 1 / reciprocalSum;
+        }
+
+        // 結果の表示
+        if (resistances.length > 0) {
+            const formattedR = formatValueWithPrefix(totalResistance, 'Ω');
+            document.getElementById('r-value').textContent = formattedR;
+            resultDiv.classList.remove('hidden');
+            
+            // カラーコード表示を更新
+            updateResistorColorCodeDisplay(totalResistance);
+        }
+    }
+
+    /**
+     * 計算結果に基づいて抵抗カラーコードを表示する
+     * @param {number} R - 合成抵抗値 (Ω)
+     */
+    function updateResistorColorCodeDisplay(R) {
+        const displayDiv = document.getElementById('resistor-colorcode-display');
+        
+        if (R <= 0 || isNaN(R)) {
+            displayDiv.classList.add('hidden');
+            return;
+        }
+        
+        // 4帯カラーコードの生成
+        const { colors: colors4, info: info4 } = resistanceToColorCode(R, 4);
+        const band4Container = document.getElementById('resistor-4band');
+        band4Container.innerHTML = colors4.map(color => 
+            `<div class="color-band" style="background-color: ${color};"></div>`
+        ).join('');
+        document.getElementById('resistor-4band-info').innerHTML = info4.replace(/\n/g, '<br>');
+
+        // 5帯カラーコードの生成
+        const { colors: colors5, info: info5 } = resistanceToColorCode(R, 5);
+        const band5Container = document.getElementById('resistor-5band');
+        band5Container.innerHTML = colors5.map(color => 
+            `<div class="color-band" style="background-color: ${color};"></div>`
+        ).join('');
+        document.getElementById('resistor-5band-info').innerHTML = info5.replace(/\n/g, '<br>');
+
+        displayDiv.classList.remove('hidden');
+    }
+
+    // --- カラーコード読取ロジック (温度係数削除) ---
+
+    /**
+     * カラーコード読取タブのUIを初期化・更新する
+     */
+    function updateColorCodeReaderUI() {
+        const bandCount = document.querySelector('input[name="bandCount"]:checked').value;
+        const body = document.getElementById('reader-resistor-body');
+        const controls = document.getElementById('reader-select-controls');
+
+        body.innerHTML = '';
+        controls.innerHTML = '';
+        document.getElementById('reader-result').classList.add('hidden');
+        
+        // 帯の定義: [名前, 説明, 必要な色, 必須 (1桁目は0不可など)]
+        const bandsConfig = bandCount === '4' ? [
+            ['bandA', '第1有効数字', 'digit_1', true],
+            ['bandB', '第2有効数字', 'digit_n', true],
+            ['bandM', '乗数', 'multiplier', true],
+            ['bandT', '許容差', 'tolerance', false]
+        ] : [
+            ['bandA', '第1有効数字', 'digit_1', true],
+            ['bandB', '第2有効数字', 'digit_n', true],
+            ['bandC', '第3有効数字', 'digit_n', true],
+            ['bandM', '乗数', 'multiplier', true],
+            ['bandT', '許容差', 'tolerance', false]
+        ];
+
+        bandsConfig.forEach(([id, label, type, isDigit]) => {
+            // 抵抗器の帯 (視覚要素)
+            const bandDiv = document.createElement('div');
+            bandDiv.className = 'color-band';
+            bandDiv.id = `reader-${id}`;
+            bandDiv.style.backgroundColor = 'gray'; // 初期色
+            body.appendChild(bandDiv);
+
+            // 選択コントロール (ドロップダウン)
+            const controlDiv = document.createElement('div');
+            controlDiv.className = 'flex flex-col';
+            controlDiv.innerHTML = `<label for="${id}" class="text-sm font-medium text-gray-700">${label}</label>`;
+
+            const select = document.createElement('select');
+            select.id = id;
+            select.className = 'p-2 border border-gray-300 rounded-lg shadow-sm';
+            select.onchange = calculateResistanceFromColorCode;
+
+            // オプションの追加
+            Object.keys(COLOR_CODES).forEach(name => {
+                const code = COLOR_CODES[name];
+                let isAllowed = false;
+
+                if (type === 'digit_1') { // 1桁目 (黒は不可)
+                    isAllowed = code.value !== null && name !== '黒';
+                } else if (type === 'digit_n') { // その他数字帯
+                    isAllowed = code.value !== null;
+                } else if (type === 'multiplier') { // 乗数帯
+                    isAllowed = code.multiplier !== null;
+                } else if (type === 'tolerance') { // 許容差帯
+                    isAllowed = code.tolerance !== null || name === 'なし';
+                }
+
+                if (isAllowed) {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    select.appendChild(option);
+                }
+            });
+
+            // 初期値の設定
+            if (isDigit) {
+                select.value = '茶'; // 1
+            } else if (type === 'multiplier') {
+                select.value = '黒'; // x1
+            } else if (type === 'tolerance') {
+                select.value = '金'; // ±5%
+            }
+
+            controlDiv.appendChild(select);
+            controls.appendChild(controlDiv);
+        });
+        
+        // 初期計算を実行
+        calculateResistanceFromColorCode();
+    }
+
+    /**
+     * 選択されたカラーコードから抵抗値を計算する
+     */
+    function calculateResistanceFromColorCode() {
+        const bandCount = document.querySelector('input[name="bandCount"]:checked').value;
+        const resultDiv = document.getElementById('reader-result');
+        
+        let digits = [];
+        let multiplier = 1e0;
+        let tolerance = 'N/A';
+
+        try {
+            if (bandCount === '4') {
+                const bandA = document.getElementById('bandA').value;
+                const bandB = document.getElementById('bandB').value;
+                const bandM = document.getElementById('bandM').value;
+                const bandT = document.getElementById('bandT').value;
+
+                digits.push(COLOR_CODES[bandA].value);
+                digits.push(COLOR_CODES[bandB].value);
+                multiplier = COLOR_CODES[bandM].multiplier;
+                tolerance = COLOR_CODES[bandT].tolerance || COLOR_CODES[bandT].name;
+                
+                // 視覚的な更新
+                document.getElementById('reader-bandA').style.backgroundColor = COLOR_CODES[bandA].color;
+                document.getElementById('reader-bandB').style.backgroundColor = COLOR_CODES[bandB].color;
+                document.getElementById('reader-bandM').style.backgroundColor = COLOR_CODES[bandM].color;
+                document.getElementById('reader-bandT').style.backgroundColor = COLOR_CODES[bandT].color;
+
+            } else if (bandCount === '5') {
+                const bandA = document.getElementById('bandA').value;
+                const bandB = document.getElementById('bandB').value;
+                const bandC = document.getElementById('bandC').value;
+                const bandM = document.getElementById('bandM').value;
+                const bandT = document.getElementById('bandT').value;
+
+                digits.push(COLOR_CODES[bandA].value);
+                digits.push(COLOR_CODES[bandB].value);
+                digits.push(COLOR_CODES[bandC].value);
+                multiplier = COLOR_CODES[bandM].multiplier;
+                tolerance = COLOR_CODES[bandT].tolerance || COLOR_CODES[bandT].name;
+                
+                // 視覚的な更新
+                document.getElementById('reader-bandA').style.backgroundColor = COLOR_CODES[bandA].color;
+                document.getElementById('reader-bandB').style.backgroundColor = COLOR_CODES[bandB].color;
+                document.getElementById('reader-bandC').style.backgroundColor = COLOR_CODES[bandC].color;
+                document.getElementById('reader-bandM').style.backgroundColor = COLOR_CODES[bandM].color;
+                document.getElementById('reader-bandT').style.backgroundColor = COLOR_CODES[bandT].color;
+            }
+
+            // 抵抗値の計算
+            let resistanceDigits = digits.join('');
+            let resistanceValue = parseFloat(resistanceDigits) * multiplier;
+            
+            // 結果の表示
+            document.getElementById('read-value').textContent = formatValueWithPrefix(resistanceValue, 'Ω');
+            document.getElementById('read-tolerance').textContent = tolerance;
+            resultDiv.classList.remove('hidden');
+
+        } catch (error) {
+            console.error("カラーコード計算エラー:", error);
+            document.getElementById('read-value').textContent = 'エラー';
+            document.getElementById('read-tolerance').textContent = 'エラー';
+            resultDiv.classList.remove('hidden');
+        }
+    }
+
+
+    // --- タブ切り替えロジック ---
+
+    /**
+     * 指定されたタブを表示する
+     * @param {string} tabName - 表示するタブの名前 ('resistance', 'colorcode-reader', 'unit-converter')
+     */
+    function showTab(tabName) {
+        document.querySelectorAll('.tab-page').forEach(page => {
+            page.classList.add('hidden');
+        });
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.setAttribute('data-active', 'false');
+        });
+
+        document.getElementById(tabName).classList.remove('hidden');
+        document.querySelector(`.tab-button[data-tab="${tabName}"]`).setAttribute('data-active', 'true');
+    }
+
+
+    // --- 初期化 ---
+
+    window.onload = function() {
+        // 合成抵抗計算機タブの初期化: 入力欄は空のままにし、結果表示を非表示に保つ
+        
+        // カラーコード読取タブの初期化
+        updateColorCodeReaderUI(); 
+
+        // 単位換算タブの初期化
+        updateUnitConverterUI(); // 単位選択肢をロードし、初期状態として「値を入力してください」を表示
+        
+        // 最初のタブを表示
+        showTab('resistance');
+    };
+</script>
+
+</body>
+</html>

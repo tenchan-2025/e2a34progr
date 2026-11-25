@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    
+    <!-- ズーム防止対策を維持 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>電卓</title>
+    
+    <!-- PWA / iOSホーム画面への追加設定 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="電卓">
+
+    <!-- PWA/Android対応 -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- アイコン設定 -->
+    <link rel="icon" href="https://raw.githubusercontent.com/tenchan-2025/Calculator-Classic/refs/heads/main/icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/tenchan-2025/Calculator-Classic/refs/heads/main/icon.png">
+    
+    <!-- Tone.jsを読み込み：音の再生に使用します -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <!-- 元のデザインのカスタムCSSを復元し、タッチアクションとスクロール防止を追加 -->
+    <style>
+        :root {
+            /* 主要なカラーパレット (元の値を維持) */
+            --display-bg-start: #d3dfc7; 
+            --display-bg-end: #b6c3a2;   
+            --calculator-bg: #404040; 
+            --dark-key-start: #5a5a5a; 
+            --dark-key-end: #3b3b3b;   
+            --dark-key-border: #222222; 
+            --default-light-key-start: #919191; 
+            --default-light-key-end: #616161;   
+            --default-light-key-border: #444444; 
+            /* ACキー用の赤色を維持 */
+            --clear-key-start: #ff6347; 
+            --clear-key-end: #cc4c39;   
+            --clear-key-border: #993a2b; 
+            --op-key-start: #bf8d5e;    
+            --op-key-end: #8b5f3a;      
+            --op-key-border: #5a3c21;   
+            --equals-key-start: #ff8c00; 
+            --equals-key-end: #cc5c00;   
+            --equals-key-border: #803b00; 
+            --text-light: #ffffff;      
+            --text-dark: #000000;       
+            --text-red: #8b0000;        
+            --accent-color: #3b82f6;    
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #e0e0e0; 
+            min-height: 100vh;
+            height: 100vh; /* 高さ固定 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem; 
+            margin: 0;
+            box-sizing: border-box; 
+            position: relative;
+            user-select: none; 
+            -webkit-user-select: none; 
+            touch-action: manipulation; 
+            overflow: hidden; /* スクロールを禁止 (iPhone SE対策) */
+        }
+
+        #calculator {
+            background-color: var(--calculator-bg);
+            border-radius: 20px; 
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1) inset; 
+            /* パディングは元の20pxに近い値に戻す */
+            padding: 20px; 
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            width: 100%; 
+            max-width: 350px; /* 最大幅は元の値を維持 */
+            position: relative;
+            margin-bottom: 0; 
+        }
+
+        #swipe-area {
+            border-radius: 8px; 
+            background: linear-gradient(180deg, var(--display-bg-start) 0%, var(--display-bg-end) 100%);
+            padding: 15px 10px;
+            margin-bottom: 20px; /* 元の値を維持 */
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3), 
+                        inset 0 -2px 5px rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden; 
+            cursor: pointer; 
+            touch-action: pan-y; 
+        }
+        
+        #previous-operation {
+            color: var(--text-dark); 
+            opacity: 0.6;
+            font-size: 1.25rem; 
+            height: 1.5rem; 
+            font-weight: 300;
+            text-align: right; 
+        }
+
+        #current-display {
+            min-height: 4rem;
+            display: flex; 
+            justify-content: flex-end;
+            align-items: flex-end;
+            font-family: monospace; 
+            font-weight: 300; 
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4); 
+            text-align: right; 
+            height: 4rem; 
+            overflow: hidden; 
+        }
+
+        #sound-setting-button {
+            position: absolute;
+            top: 20px; /* 元の値を維持 */
+            left: 20px; /* 元の値を維持 */
+            background: none;
+            border: none;
+            color: var(--default-light-key-start); 
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            transition: color 0.2s;
+            z-index: 10;
+            touch-action: manipulation;
+        }
+
+        #sound-setting-button:hover {
+            color: var(--text-light);
+        }
+
+        .speaker-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            position: relative;
+            border-radius: 4px; 
+        }
+        .speaker-icon svg {
+            fill: currentColor;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- ボタン共通スタイル (六角形) --- */
+        .calculator-grid {
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px; /* 元の値を維持 */
+            grid-auto-rows: 70px; /* 元の値を維持 */
+            padding-top: 5px;
+        }
+
+        .key {
+            height: 70px; /* 元の値を維持 */
+            width: 100%; 
+            max-width: 70px; 
+            margin: 0 auto; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-light); 
+            text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.6); 
+            
+            /* 六角形クリップパス: 頂点が上下に来る標準的な六角形 */
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); 
+
+            box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.1), 
+                        inset 0 -2px 5px rgba(0, 0, 0, 0.4),   
+                        0 5px 10px rgba(0, 0, 0, 0.3);         
+            border: 1px solid; 
+            transition: all 0.05s ease-out; 
+            position: relative; 
+            cursor: pointer;
+            user-select: none;
+            touch-action: manipulation; /* ズーム防止 */
+        }
+
+        .key:active {
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.4), 
+                        inset 0 -2px 5px rgba(255, 255, 255, 0.1),
+                        0 2px 5px rgba(0, 0, 0, 0.2); 
+            transform: translateY(1px); 
+        }
+        
+        .key[data-type="number"], .key[data-type="number"][data-value="."] {
+            background: linear-gradient(180deg, var(--dark-key-start) 0%, var(--dark-key-end) 100%);
+            border-color: var(--dark-key-border);
+        }
+        
+        .key[data-type="number"][data-value="0"] {
+            grid-column: span 2;
+            width: 100%; 
+            max-width: none; 
+            height: 70px; /* 元の値を維持 */
+            clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+            justify-content: flex-start; 
+            padding-left: 25px; 
+            margin: 0; 
+        }
+        
+        /* ACキー (赤色) のスタイルを再定義 */
+        .key.clear-key-color {
+            background: linear-gradient(180deg, var(--clear-key-start) 0%, var(--clear-key-end) 100%);
+            border-color: var(--clear-key-border);
+        }
+
+        /* +/- と % キー (灰色/light-key) のスタイル */
+        .key.light-key {
+            background: linear-gradient(180deg, var(--default-light-key-start) 0%, var(--default-light-key-end) 100%);
+            border-color: var(--default-light-key-border);
+            color: var(--text-dark); 
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4); 
+        }
+
+        .key.op-key {
+            background: linear-gradient(180deg, var(--op-key-start) 0%, var(--op-key-end) 100%);
+            border-color: var(--op-key-border);
+        }
+
+        .key.equals-key {
+            background: linear-gradient(180deg, var(--equals-key-start) 0%, var(--equals-key-end) 100%);
+            border-color: var(--equals-key-border);
+        }
+
+        #current-value-span.error-text {
+            color: var(--text-red); 
+            text-shadow: none;
+        }
+
+        /* 画面サイズが小さい場合の調整は、前回の値を破棄し、元々の値に戻す */
+        @media (max-width: 640px) {
+            #calculator {
+                max-width: 350px; 
+                margin-left: auto;
+                margin-right: auto;
+                padding: 15px; /* 全体パディングを少しだけ小さくしておく（念のため） */
+            }
+            .calculator-grid {
+                gap: 10px; /* ギャップを少しだけ小さくしておく（念のため） */
+                grid-auto-rows: 65px; /* ボタンの高さを少しだけ小さくしておく（念のため） */
+            }
+            .key {
+                height: 65px; 
+                max-width: 65px; 
+                font-size: 1.3rem;
+            }
+            .key[data-type="number"][data-value="0"] {
+                height: 65px; 
+                padding-left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="calculator">
+        
+        <!-- サウンド設定ボタン -->
+        <button id="sound-setting-button">
+            <!-- スピーカーアイコンSVG -->
+            <span id="speaker-icon" class="speaker-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M14.5 5.5C14.5 3.84315 15.8431 2.5 17.5 2.5C19.1569 2.5 20.5 3.84315 20.5 5.5C20.5 7.15685 19.1569 8.5 17.5 8.5C15.8431 8.5 14.5 7.15685 14.5 5.5ZM2 10.5V13.5H5.09063L10 18.5V5.5L5.09063 10.5H2Z"/>
+                </svg>
+            </span>
+        </button>
+
+        <!-- ディスプレイ部分 (スワイプエリアを含む) -->
+        <div id="swipe-area"> 
+            <div id="previous-operation"></div>
+            <div id="current-display">
+                <span id="current-value-span">0</span>
+            </div>
+        </div>
+
+        <!-- ボタングリッド -->
+        <div class="calculator-grid">
+            
+            <!-- 1列目: AC (clear-key-color), +/-, %, ÷ -->
+            <button id="clear-key" class="key clear-key-color" data-type="clear">AC</button>
+            <button class="key light-key" data-type="sign">+/-</button>
+            <button class="key light-key" data-type="operator" data-value="%">%</button>
+            <button class="key op-key" data-type="operator" data-value="/">÷</button>
+
+            <!-- 2列目: 7, 8, 9, × -->
+            <button class="key dark-key" data-type="number" data-value="7">7</button>
+            <button class="key dark-key" data-type="number" data-value="8">8</button>
+            <button class="key dark-key" data-type="number" data-value="9">9</button>
+            <button class="key op-key" data-type="operator" data-value="*">×</button>
+
+            <!-- 3列目: 4, 5, 6, - -->
+            <button class="key dark-key" data-type="number" data-value="4">4</button>
+            <button class="key dark-key" data-type="number" data-value="5">5</button>
+            <button class="key dark-key" data-type="number" data-value="6">6</button>
+            <button class="key op-key" data-type="operator" data-value="-">-</button>
+
+            <!-- 4列目: 1, 2, 3, + -->
+            <button class="key dark-key" data-type="number" data-value="1">1</button>
+            <button class="key dark-key" data-type="number" data-value="2">2</button>
+            <button class="key dark-key" data-type="number" data-value="3">3</button>
+            <button class="key op-key" data-type="operator" data-value="+">+</button>
+
+            <!-- 5列目: 0 (2マス幅), ., = -->
+            <button class="key dark-key" data-type="number" data-value="0"></button> 
+            <button class="key dark-key" data-type="number" data-value="." data-value=".">.</button>
+            <button class="key equals-key" data-type="equals">=</button> 
+        </div>
+    </div>
+
+    <!-- スクリプト -->
+    <script>
+        // DOM要素の取得
+        const currentDisplay = document.getElementById('current-display');
+        const currentValueSpan = document.getElementById('current-value-span');
+        const previousOperation = document.getElementById('previous-operation');
+        const calculator = document.getElementById('calculator');
+        const clearKey = document.getElementById('clear-key'); 
+        const swipeArea = document.getElementById('swipe-area'); 
+        const zeroKey = document.querySelector('.key[data-type="number"][data-value="0"]'); 
+        const soundSettingButton = document.getElementById('sound-setting-button');
+        const speakerIcon = document.getElementById('speaker-icon');
+        
+        // 0キーのテキストを設定
+        if (zeroKey) {
+            zeroKey.textContent = '0';
+        }
+
+        // グローバルなサウンド状態 (初期値は常に有効)
+        let isSoundEnabled = true; 
+
+        // --- Tone.js サウンド設定 ---
+        const synth = new Tone.Synth().toDestination();
+        synth.volume.value = -10; 
+        
+        // スピーカーアイコンのSVGパス
+        const speakerOnPath = '<path fill-rule="evenodd" clip-rule="evenodd" d="M14.5 5.5C14.5 3.84315 15.8431 2.5 17.5 2.5C19.1569 2.5 20.5 3.84315 20.5 5.5C20.5 7.15685 19.1569 8.5 17.5 8.5C15.8431 8.5 14.5 7.15685 14.5 5.5ZM2 10.5V13.5H5.09063L10 18.5V5.5L5.09063 10.5H2Z"/>';
+        const speakerOffPath = '<path d="M16 11.2L18.7 10L16 11.2ZM19.5 16.7L18.3 15.5L20 13.8L20 15L23 15V17L20 17V18.7L18.3 17L19.5 16.7ZM2 10.5V13.5H5.09063L10 18.5V5.5L5.09063 10.5H2ZM23 10V8L20 8V9.2L23 10Z"/>';
+
+        // ボタンに対応する音階（MIDIノート番号または音名）を定義
+        const noteMap = {
+            '1': 'C4', 
+            '2': 'D4', 
+            '3': 'E4', 
+            '4': 'F4', 
+            '5': 'G4', 
+            '6': 'A4', 
+            '7': 'B4', 
+            '8': 'C5', 
+            '9': 'D5',
+            '0': 'A3', 
+            '.': 'B3', 
+            '+': 'G5', 
+            '-': 'F5',
+            '*': 'D#5', 
+            '/': 'C#5',
+            '%': 'D5', 
+            'equals': 'G6', 
+            'clear': 'A5', 
+            'sign': 'E5', 
+        };
+
+        // サウンド再生関数
+        function playSound(note) {
+            if (!isSoundEnabled) return; 
+
+            if (Tone.context.state !== 'running') {
+                Tone.start().then(() => {
+                    const duration = 0.05; 
+                    synth.triggerAttackRelease(note, duration);
+                });
+            } else {
+                const duration = 0.05; 
+                synth.triggerAttackRelease(note, duration);
+            }
+        }
+        // --- Tone.js サウンド設定 終わり ---
+
+
+        // --- サウンド設定ロジック ---
+        function setSoundEnabled(enable) {
+            isSoundEnabled = enable;
+            updateSpeakerIcon();
+        }
+
+        function updateSpeakerIcon() {
+            speakerIcon.innerHTML = isSoundEnabled ? 
+                `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">${speakerOnPath}</svg>` : 
+                `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">${speakerOffPath}</svg>`;
+        }
+
+        soundSettingButton.addEventListener('click', () => {
+            // 音声コンテキストの開始（ユーザーのジェスチャーによる）
+            if (!isSoundEnabled) {
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+            }
+            setSoundEnabled(!isSoundEnabled);
+        });
+
+        // --- 電卓ロジック ---
+
+        // 初期状態を定義（localStorageからの読み込みは行わない）
+        let calculatorState = {
+            currentValue: '0',        
+            previousValue: null,      
+            operation: null,          
+            waitingForNewValue: true, 
+            isError: false,           
+        };
+
+        const operationMap = {
+            '+': '+',
+            '-': '−',
+            '*': '×',
+            '/': '÷',
+            '%': '%',
+        };
+        
+        function adjustFontSize(value) {
+            const length = value.replace(/[-.]/g, '').length; 
+            let fontSize;
+            if (length > 13) {
+                fontSize = '1.5rem'; 
+            } else if (length > 10) {
+                fontSize = '1.75rem'; 
+            } else if (length > 7) {
+                fontSize = '2.5rem'; 
+            } else {
+                fontSize = '3.25rem'; 
+            }
+            currentValueSpan.style.fontSize = fontSize;
+        }
+
+        function formatNumberWithCommas(valueStr) {
+            if (!valueStr || calculatorState.isError) return valueStr;
+            const isNegative = valueStr.startsWith('-');
+            let numberPart = isNegative ? valueStr.substring(1) : valueStr;
+            const parts = numberPart.split('.');
+            const integerPart = parts[0];
+            const fractionalPart = parts.length > 1 ? '.' + parts[1] : '';
+            const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return (isNegative ? '-' : '') + formattedIntegerPart + fractionalPart;
+        }
+
+        function updateDisplay() {
+            if (calculatorState.isError) {
+                currentValueSpan.textContent = 'エラー';
+                currentValueSpan.style.fontSize = '2rem'; 
+                currentValueSpan.classList.add('error-text'); 
+                previousOperation.textContent = '';
+                clearKey.textContent = 'AC'; 
+                return;
+            } else {
+                currentValueSpan.classList.remove('error-text'); 
+            }
+
+            const displayValue = calculatorState.currentValue;
+            currentValueSpan.textContent = formatNumberWithCommas(displayValue);
+            adjustFontSize(displayValue); 
+
+            if (calculatorState.previousValue !== null && calculatorState.operation !== null) {
+                const opSymbol = operationMap[calculatorState.operation] || calculatorState.operation;
+                // previousValueは数値として保存されている可能性があるため、表示用にフォーマット
+                const prevFormatted = parseFloat(calculatorState.previousValue).toLocaleString('ja-JP', {
+                    maximumFractionDigits: 10 
+                });
+                previousOperation.textContent = `${prevFormatted} ${opSymbol}`;
+            } else {
+                previousOperation.textContent = '';
+            }
+
+            if (calculatorState.currentValue !== '0' && !calculatorState.waitingForNewValue) {
+                clearKey.textContent = 'C';
+            } else {
+                clearKey.textContent = 'AC';
+            }
+        }
+
+        function inputDigit(digit) {
+            if (calculatorState.isError) return;
+
+            if (calculatorState.waitingForNewValue) {
+                calculatorState.currentValue = digit === '.' ? '0.' : digit;
+                calculatorState.waitingForNewValue = false;
+            } else {
+                if (digit === '.') {
+                    if (!calculatorState.currentValue.includes('.')) {
+                        calculatorState.currentValue += '.';
+                    }
+                } else if (calculatorState.currentValue === '0' && digit !== '.') {
+                    calculatorState.currentValue = digit;
+                } else {
+                    if (calculatorState.currentValue.replace(/[-.]/g, '').length < 15) {
+                        calculatorState.currentValue += digit;
+                    }
+                }
+            }
+            updateDisplay();
+        }
+
+        function handleOperator(nextOperation) {
+            if (calculatorState.isError) return;
+
+            const inputValue = parseFloat(calculatorState.currentValue.replace(/,/g, ''));
+
+
+            if (calculatorState.previousValue === null) {
+                calculatorState.previousValue = inputValue;
+            } else if (!calculatorState.waitingForNewValue) {
+                const result = calculate(calculatorState.previousValue, inputValue, calculatorState.operation);
+
+                if (result === 'ERROR') {
+                    calculatorState.isError = true;
+                    updateDisplay();
+                    return;
+                }
+                
+                calculatorState.currentValue = String(result);
+                calculatorState.previousValue = result;
+            }
+
+            calculatorState.waitingForNewValue = true;
+            calculatorState.operation = nextOperation;
+            updateDisplay();
+        }
+
+        function handleEquals() {
+            if (calculatorState.isError || calculatorState.previousValue === null || calculatorState.operation === null) return;
+
+            let inputValue = parseFloat(calculatorState.currentValue.replace(/,/g, ''));
+
+            const result = calculate(calculatorState.previousValue, inputValue, calculatorState.operation);
+
+            if (result === 'ERROR') {
+                calculatorState.isError = true;
+            } else {
+                calculatorState.currentValue = String(result);
+                calculatorState.previousValue = null; 
+                calculatorState.operation = null;     
+            }
+            calculatorState.waitingForNewValue = true;
+            updateDisplay();
+        }
+
+        function calculate(prev, current, operation) {
+            const precision = 10000000000; 
+            prev = Math.round(prev * precision) / precision;
+            current = Math.round(current * precision) / precision;
+
+            let result;
+            switch (operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) return 'ERROR';
+                    result = prev / current;
+                    break;
+                case '%':
+                    result = prev * (current / 100);
+                    break;
+                default:
+                    return current;
+            }
+            return Math.round(result * precision) / precision;
+        }
+        
+        function clear() {
+            if (calculatorState.isError) {
+                fullClear();
+            } else if (clearKey.textContent === 'C') {
+                currentClear();
+            } else {
+                fullClear();
+            }
+            updateDisplay();
+        }
+
+        function currentClear() {
+            calculatorState.currentValue = '0';
+            calculatorState.waitingForNewValue = true; 
+        }
+
+        function fullClear() {
+            calculatorState = {
+                currentValue: '0',
+                previousValue: null,
+                operation: null,
+                waitingForNewValue: true,
+                isError: false,
+            };
+        }
+
+        function changeSign() {
+            if (calculatorState.isError) return;
+            
+            let value = parseFloat(calculatorState.currentValue.replace(/,/g, ''));
+            if (!isNaN(value) && value !== 0) {
+                calculatorState.currentValue = String(-value);
+                calculatorState.waitingForNewValue = false;
+            }
+            updateDisplay();
+        }
+
+        function backspace() {
+            if (calculatorState.isError || calculatorState.waitingForNewValue) return;
+
+            let current = calculatorState.currentValue;
+
+            if (current.length > 1 && current !== '0') {
+                let newCurrent = current.slice(0, -1);
+                
+                if (newCurrent === '-' || newCurrent === '.') {
+                    calculatorState.currentValue = '0';
+                    calculatorState.waitingForNewValue = true;
+                } else {
+                    calculatorState.currentValue = newCurrent;
+                }
+            } else if (current.length === 1 && current !== '0') {
+                calculatorState.currentValue = '0';
+                calculatorState.waitingForNewValue = true;
+            }
+
+            updateDisplay();
+        }
+
+        // --- イベントリスナー ---
+
+        // 1. ボタンクリックイベント
+        calculator.addEventListener('click', (event) => {
+            const { type, value } = event.target.dataset;
+
+            if (!type) return;
+
+            // キーの押下アニメーションをトリガー
+            event.target.classList.add('active');
+            setTimeout(() => {
+                event.target.classList.remove('active');
+            }, 100); 
+            
+            // サウンドの決定と再生
+            let noteToPlay = null;
+            if (type === 'number') {
+                noteToPlay = noteMap[value];
+            } else if (type === 'operator') {
+                noteToPlay = noteMap[value];
+            } else if (type === 'equals') {
+                noteToPlay = noteMap['equals'];
+            } else if (type === 'clear') {
+                noteToPlay = noteMap['clear'];
+            } else if (type === 'sign') {
+                noteToPlay = noteMap['sign'];
+            }
+
+            if (noteToPlay) {
+                playSound(noteToPlay);
+            }
+
+            switch (type) {
+                case 'number':
+                    inputDigit(value);
+                    break;
+                case 'operator':
+                    handleOperator(value);
+                    break;
+                case 'equals':
+                    handleEquals();
+                    break;
+                case 'clear':
+                    clear();
+                    break;
+                case 'sign':
+                    changeSign();
+                    break;
+            }
+        });
+
+        // 2. スワイプイベント (一文字削除)
+        let touchstartX = 0;
+        let touchendX = 0;
+        const SWIPE_THRESHOLD = 50; 
+
+        swipeArea.addEventListener('touchstart', e => {
+            // ズーム防止のために2本指以上の操作を無視する
+            if (e.touches.length > 1) {
+                e.preventDefault(); 
+                return;
+            }
+            touchstartX = e.changedTouches[0].screenX;
+        }, { passive: false });
+
+        swipeArea.addEventListener('touchend', e => {
+            // ズーム防止のために2本指以上の操作を無視する
+            if (e.changedTouches.length > 1) {
+                e.preventDefault();
+                return;
+            }
+            touchendX = e.changedTouches[0].screenX;
+            handleGesture();
+        }, { passive: false });
+        
+        // 全体でのタッチ操作によるズーム防止
+        document.body.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        document.body.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+
+        function handleGesture() {
+            // 左スワイプ (右から左) または 右スワイプ (左から右) の両方で動作させる
+            const deltaX = touchendX - touchstartX;
+            
+            // スワイプの絶対値が閾値を超えているか確認
+            if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                backspace();
+                playSound(noteMap['clear']);
+            }
+        }
+
+        // 3. キーボードイベント (PC操作)
+        document.addEventListener('keydown', (e) => {
+            if (calculatorState.isError) {
+                if (e.key === 'Escape' || e.key === 'Delete') {
+                    clear();
+                }
+                return;
+            }
+
+            let noteToPlay = null;
+
+            if (e.key >= '0' && e.key <= '9') {
+                inputDigit(e.key);
+                noteToPlay = noteMap[e.key];
+            } else if (e.key === '.') {
+                inputDigit('.');
+                noteToPlay = noteMap['.'];
+            } 
+            else if (['+', '-', '*', '/'].includes(e.key)) {
+                handleOperator(e.key);
+                noteToPlay = noteMap[e.key];
+            } else if (e.key === '%') {
+                handleOperator('%'); 
+                noteToPlay = noteMap['%'];
+            }
+            else if (e.key === 'Enter' || e.key === '=') {
+                e.preventDefault(); 
+                handleEquals();
+                noteToPlay = noteMap['equals'];
+            }
+            else if (e.key === 'Backspace' || e.key === 'Delete') {
+                e.preventDefault(); 
+                backspace();
+                noteToPlay = noteMap['clear'];
+            }
+            else if (e.key === 'Escape') {
+                fullClear();
+                updateDisplay();
+                noteToPlay = noteMap['clear'];
+            }
+
+            if (noteToPlay) {
+                playSound(noteToPlay);
+            }
+        });
+
+        // 4. 初期表示の更新
+        window.onload = () => {
+            updateDisplay();
+            updateSpeakerIcon(); 
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    
+    <!-- ズーム防止対策とタッチ抜け対策を維持 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>電卓 (超軽量版)</title>
+    
+    <!-- PWA / iOSホーム画面への追加設定は残す -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="電卓">
+    
+    <!-- アイコン設定 -->
+    <link rel="icon" href="https://raw.githubusercontent.com/tenchan-2025/Calculator-Classic/refs/heads/main/icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/tenchan-2025/Calculator-Classic/refs/heads/main/icon.png">
+
+    <!-- 描画負荷を極限まで削減したスタイル (角丸・境界線なし) -->
+    <style>
+        /* --- 固定カラーコード定義 --- */
+        .display-bg { background-color: #c0cfa8; } 
+        .calculator-bg { background-color: #404040; }
+        .dark-key-color { background-color: #4a4a4a; }
+        .light-key-color { background-color: #7a7a7a; }
+        .red-key-color { background-color: #c95d5d; } 
+        .op-key-color { background-color: #a47047; }
+        .equals-key-color { background-color: #cc6d00; }
+        
+        /* Text Colors */
+        .text-dark { color: #000000; }
+        .text-light { color: #ffffff; }
+
+        /* --- 基本レイアウトと互換性のための修正 --- */
+
+        body {
+            /* スクロールを厳格に禁止し、タッチ抜けを減らす */
+            overflow: hidden; 
+            -webkit-overflow-scrolling: touch; 
+
+            font-family: Helvetica, Arial, sans-serif; 
+            background: #e0e0e0; 
+            min-height: 100vh;
+            height: 100vh;
+            display: block; 
+            text-align: center; 
+            padding: 1rem; 
+            margin: 0;
+            box-sizing: border-box; 
+            user-select: none; 
+            -webkit-user-select: none; 
+        }
+
+        #calculator {
+            background-color: #404040;
+            /* 角丸を完全に削除 */
+            border-radius: 0px; 
+            /* 影を完全に削除 */
+            box-shadow: none; 
+            padding: 20px; 
+            /* 境界線を完全に削除 */
+            border: none;
+            width: 100%; 
+            max-width: 350px; 
+            margin: 0 auto; 
+            position: relative;
+            display: block; 
+        }
+
+        #swipe-area {
+            /* 角丸を完全に削除 */
+            border-radius: 0px; 
+            background-color: #c0cfa8; 
+            padding: 15px 10px;
+            margin-bottom: 20px; 
+            /* 影と境界線を完全に削除 */
+            box-shadow: none; 
+            border: none;
+            position: relative;
+            overflow: hidden; 
+            cursor: pointer; 
+        }
+        
+        #previous-operation {
+            color: #000000; 
+            opacity: 0.6;
+            font-size: 1.25em; 
+            height: 1.5em; 
+            font-weight: 300;
+            text-align: right; 
+        }
+
+        #current-display {
+            min-height: 4em;
+            display: block; 
+            font-family: monospace; 
+            font-weight: 300; 
+            /* 影を完全に削除 */
+            text-shadow: none; 
+            text-align: right; 
+            height: 4em; 
+            overflow: hidden; 
+            line-height: 4em; 
+        }
+
+        /* --- ボタン共通スタイル (究極の簡素化) --- */
+        .calculator-grid {
+            display: block; 
+            width: 100%;
+            padding-top: 5px;
+        }
+
+        .key {
+            width: 70px; 
+            height: 70px; 
+            float: left; 
+            margin: 6px; 
+            display: block; 
+            
+            /* 角丸を完全に削除 */
+            border-radius: 0px; 
+            text-align: center;
+            line-height: 70px; 
+            font-size: 1.5em;
+            font-weight: 500;
+            color: #ffffff; 
+            
+            /* 影と境界線を完全に削除 */
+            box-shadow: none;         
+            border: none; 
+            
+            /* トランジションと変換を削除 */
+            -webkit-transition: none; 
+            transition: none; 
+            -webkit-transform: none;
+            transform: none; 
+            position: relative; 
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-box-sizing: border-box; 
+            box-sizing: border-box; 
+        }
+
+        /* 4列のクリア */
+        .key:nth-child(4n+1) { clear: left; }
+        /* 5列目の0キー前のクリア */
+        .key[data-value="0"] { clear: left; }
+        
+        /* 押下時のフィードバックを簡素化 (色を変えるだけ) */
+        /* JSでactiveクラスを設定する方式に変更し、CSSの:activeは非推奨に */
+        .key.active {
+            background-color: rgba(0, 0, 0, 0.2) !important; 
+        }
+        
+        /* --- キーの背景色設定 (単色) --- */
+        
+        /* Dark Keys (Number and .) */
+        .key[data-type="number"] {
+            background-color: #4a4a4a;
+            color: #ffffff;
+        }
+
+        /* Light Keys (+/-, %) */
+        .key.light-key {
+            background-color: #7a7a7a;
+            color: #000000; 
+        }
+        .key.light-key.active { background-color: #5a5a5a !important; }
+        
+        /* AC/C (赤色キー) */
+        .key.red-key {
+            background-color: #c95d5d;
+            color: #ffffff; 
+        }
+        .key.red-key.active { background-color: #a44d4d !important; }
+
+        /* Operator Keys */
+        .key.op-key {
+            background-color: #a47047;
+        }
+        .key.op-key.active { background-color: #8b5f3a !important; }
+
+        /* Equals Key */
+        .key.equals-key {
+            background-color: #cc6d00;
+        }
+        .key.equals-key.active { background-color: #a35600 !important; }
+        
+        /* Zero Key - 2列幅の代替 */
+        .key[data-value="0"] {
+            width: 152px; 
+            text-align: left;
+            padding-left: 25px; 
+        }
+
+        #current-value-span.error-text {
+            color: #8b0000; 
+        }
+
+        /* 画面サイズが小さい場合の調整 */
+        @media (max-width: 380px) {
+            #calculator {
+                padding: 10px;
+            }
+            .key {
+                width: 60px; 
+                height: 60px; 
+                margin: 5px;
+                font-size: 1.3em;
+                line-height: 60px;
+            }
+            .key[data-value="0"] {
+                width: 130px; 
+                padding-left: 20px;
+            }
+            #current-display {
+                height: 3.5em;
+                line-height: 3.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="calculator">
+        
+        <!-- ディスプレイ部分 (スワイプエリアを含む) -->
+        <div id="swipe-area" class="display-bg"> 
+            <div id="previous-operation" class="text-dark"></div>
+            <div id="current-display" class="text-dark">
+                <!-- フォントサイズはJSで制御 -->
+                <span id="current-value-span">0</span>
+            </div>
+        </div>
+
+        <!-- ボタングリッド -->
+        <div class="calculator-grid">
+            
+            <!-- 1列目: AC, +/-, %, ÷ -->
+            <button id="clear-key" class="key red-key" data-type="clear">AC</button>
+            <button class="key light-key" data-type="sign">+/-</button>
+            <button class="key light-key" data-type="operator" data-value="%">%</button>
+            <button class="key op-key" data-type="operator" data-value="/">÷</button>
+
+            <!-- 2列目: 7, 8, 9, × -->
+            <button class="key" data-type="number" data-value="7">7</button>
+            <button class="key" data-type="number" data-value="8">8</button>
+            <button class="key" data-type="number" data-value="9">9</button>
+            <button class="key op-key" data-type="operator" data-value="*">×</button>
+
+            <!-- 3列目: 4, 5, 6, - -->
+            <button class="key" data-type="number" data-value="4">4</button>
+            <button class="key" data-type="number" data-value="5">5</button>
+            <button class="key" data-type="number" data-value="6">6</button>
+            <button class="key op-key" data-type="operator" data-value="-">-</button>
+
+            <!-- 4列目: 1, 2, 3, + -->
+            <button class="key" data-type="number" data-value="1">1</button>
+            <button class="key" data-type="number" data-value="2">2</button>
+            <button class="key" data-type="number" data-value="3">3</button>
+            <button class="key op-key" data-type="operator" data-value="+">+</button>
+
+            <!-- 5列目: 0 (2マス幅), ., = -->
+            <button class="key" data-type="number" data-value="0">0</button> 
+            <button class="key" data-type="number" data-value=".">.</button>
+            <button class="key equals-key" data-type="equals">=</button> 
+        </div>
+        
+        <!-- floatの解除 -->
+        <div style="clear: both;"></div>
+    </div>
+
+    <!-- スクリプト (古いJS構文に準拠) -->
+    <script>
+        // var, function, 標準的なDOM操作のみを使用
+        
+        // DOM要素の取得
+        var currentValueSpan = document.getElementById('current-value-span');
+        var previousOperation = document.getElementById('previous-operation');
+        var calculator = document.getElementById('calculator');
+        var clearKey = document.getElementById('clear-key'); 
+        var swipeArea = document.getElementById('swipe-area'); 
+        
+        // --- 電卓ロジック ---
+
+        // 初期状態を定義
+        var calculatorState = {
+            currentValue: '0',        
+            previousValue: null,      
+            operation: null,          
+            waitingForNewValue: true, 
+            isError: false,           
+            // 互換性のため、前回の値と操作を保持する
+            lastValue: null,
+            lastOperation: null
+        };
+
+        var operationMap = {
+            '+': '+',
+            '-': '−',
+            '*': '×',
+            '/': '÷',
+            '%': '%',
+        };
+        
+        // ディスプレイのフォントサイズを調整 (emを使用)
+        function adjustFontSize(value) {
+            var length = value.replace(/[-.]/g, '').length; 
+            var fontSize;
+            // フォントサイズ調整の計算負荷は低いため維持
+            if (length > 13) {
+                fontSize = '1.5em'; 
+            } else if (length > 10) {
+                fontSize = '1.75em'; 
+            } else if (length > 7) {
+                fontSize = '2.5em'; 
+            } else {
+                fontSize = '3.25em'; 
+            }
+            currentValueSpan.style.fontSize = fontSize;
+        }
+
+        // 古いブラウザの互換性のため、カンマ区切りは削除
+        function formatNumberForDisplay(valueStr) {
+            // 文字列長制限 (15桁を超える場合は指数表記を避けるために切り詰める)
+            if (valueStr.length > 15) {
+                // 簡易的な切り詰め（小数点以下を優先的に）
+                var parts = valueStr.split('.');
+                if (parts.length > 1) {
+                    var newFractional = parts[1].substring(0, 15 - parts[0].length);
+                    if (newFractional.length === 0) {
+                        return parts[0];
+                    }
+                    return parts[0] + '.' + newFractional;
+                } else if (valueStr.length > 15) {
+                    return valueStr.substring(0, 15);
+                }
+            }
+            return valueStr;
+        }
+
+        // ディスプレイを更新
+        function updateDisplay() {
+            // パフォーマンスのため、classNameの変更を必要最小限に抑える
+            var isError = calculatorState.isError;
+            var currentClassName = currentValueSpan.className;
+
+            if (isError) {
+                currentValueSpan.textContent = 'エラー';
+                currentValueSpan.style.fontSize = '2em'; 
+                if (currentClassName.indexOf('error-text') === -1) {
+                    currentValueSpan.className = 'error-text text-dark'; // text-redからtext-darkに修正
+                }
+                previousOperation.textContent = '';
+                clearKey.textContent = 'AC'; 
+                return;
+            } else {
+                if (currentClassName.indexOf('error-text') !== -1) {
+                     currentValueSpan.className = 'text-dark'; 
+                } else if (currentClassName === '') {
+                    currentValueSpan.classList.add('text-dark');
+                }
+            }
+
+            var displayValue = formatNumberForDisplay(calculatorState.currentValue);
+            currentValueSpan.textContent = displayValue;
+            adjustFontSize(displayValue); 
+
+            if (calculatorState.previousValue !== null && calculatorState.operation !== null) {
+                var opSymbol = operationMap[calculatorState.operation] || calculatorState.operation;
+                var prevFormatted = String(calculatorState.previousValue);
+                previousOperation.textContent = prevFormatted + ' ' + opSymbol;
+            } else {
+                previousOperation.textContent = '';
+            }
+
+            // AC (All Clear) と C (Clear current) の切り替え
+            if (calculatorState.currentValue !== '0' && !calculatorState.waitingForNewValue) {
+                clearKey.textContent = 'C';
+            } else {
+                clearKey.textContent = 'AC';
+            }
+        }
+
+        // 数字/小数点入力の処理
+        function inputDigit(digit) {
+            if (calculatorState.isError) return;
+
+            if (calculatorState.waitingForNewValue) {
+                calculatorState.currentValue = (digit === '.') ? '0.' : digit;
+                calculatorState.waitingForNewValue = false;
+                calculatorState.lastValue = null;
+                calculatorState.lastOperation = null;
+            } else {
+                if (calculatorState.currentValue.replace(/[-.]/g, '').length >= 15 && digit !== '.') {
+                    return; 
+                }
+                
+                if (digit === '.') {
+                    if (calculatorState.currentValue.indexOf('.') === -1) {
+                        calculatorState.currentValue += '.';
+                    }
+                } else if (calculatorState.currentValue === '0' && digit !== '.') {
+                    calculatorState.currentValue = digit;
+                } else {
+                    calculatorState.currentValue += digit;
+                }
+            }
+            updateDisplay();
+        }
+
+        // 演算子入力の処理
+        function handleOperator(nextOperation) {
+            if (calculatorState.isError) return;
+
+            var inputValue = parseFloat(calculatorState.currentValue);
+
+            calculatorState.lastValue = null;
+            calculatorState.lastOperation = null;
+
+            if (calculatorState.previousValue === null) {
+                calculatorState.previousValue = inputValue;
+            } else if (!calculatorState.waitingForNewValue) {
+                var result = calculate(calculatorState.previousValue, inputValue, calculatorState.operation);
+
+                if (result === 'ERROR') {
+                    calculatorState.isError = true;
+                    updateDisplay();
+                    return;
+                }
+                
+                calculatorState.currentValue = String(result);
+                calculatorState.previousValue = result;
+            }
+
+            calculatorState.waitingForNewValue = true;
+            calculatorState.operation = nextOperation;
+            updateDisplay();
+        }
+
+        // イコール (=) 処理
+        function handleEquals() {
+            if (calculatorState.isError) return;
+            
+            var prevValue, op;
+
+            if (calculatorState.previousValue === null) {
+                if (calculatorState.lastValue === null) return; 
+
+                prevValue = parseFloat(calculatorState.currentValue);
+                op = calculatorState.lastOperation;
+            } else {
+                prevValue = calculatorState.previousValue;
+                op = calculatorState.operation;
+                
+                calculatorState.lastValue = parseFloat(calculatorState.currentValue);
+                calculatorState.lastOperation = op;
+                
+                calculatorState.previousValue = null;
+                calculatorState.operation = null;
+            }
+
+            var currentInput = parseFloat(calculatorState.currentValue);
+            var calculateValue = calculatorState.lastValue !== null ? calculatorState.lastValue : currentInput;
+            
+            var result = calculate(prevValue, calculateValue, op);
+
+            if (result === 'ERROR') {
+                calculatorState.isError = true;
+            } else {
+                calculatorState.currentValue = String(result);
+            }
+            calculatorState.waitingForNewValue = true;
+            updateDisplay();
+        }
+
+        // 実際の計算ロジック
+        function calculate(prev, current, operation) {
+            var precision = 10000000000; 
+            prev = Math.round(prev * precision) / precision;
+            current = Math.round(current * precision) / precision;
+
+            var result;
+            switch (operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) return 'ERROR'; 
+                    result = prev / current;
+                    break;
+                case '%':
+                    result = prev * (current / 100);
+                    break;
+                default:
+                    return current;
+            }
+            return Math.round(result * precision) / precision;
+        }
+        
+        // クリアボタン (AC/C) の処理
+        function clear() {
+            if (calculatorState.isError) {
+                fullClear(); 
+            } else if (clearKey.textContent === 'C') {
+                currentClear(); 
+            } else {
+                fullClear(); 
+            }
+            updateDisplay();
+        }
+
+        // 現在の入力のみクリア (C)
+        function currentClear() {
+            calculatorState.currentValue = '0';
+            calculatorState.waitingForNewValue = true; 
+            calculatorState.lastValue = null;
+            calculatorState.lastOperation = null;
+        }
+
+        // 全てクリア (AC)
+        function fullClear() {
+            calculatorState = {
+                currentValue: '0',
+                previousValue: null,
+                operation: null,
+                waitingForNewValue: true,
+                isError: false,
+                lastValue: null,
+                lastOperation: null
+            };
+        }
+
+        // +/- (符号反転) の処理
+        function changeSign() {
+            if (calculatorState.isError) return;
+            
+            var value = parseFloat(calculatorState.currentValue);
+            if (!isNaN(value) && value !== 0) {
+                calculatorState.currentValue = String(-value);
+                calculatorState.waitingForNewValue = false; 
+            }
+            updateDisplay();
+        }
+
+        // バックスペース (一文字削除) 処理
+        function backspace() {
+            if (calculatorState.isError || calculatorState.waitingForNewValue) return;
+
+            var current = calculatorState.currentValue;
+
+            if (current.length > 1 && current !== '0') {
+                var newCurrent = current.slice(0, -1);
+                
+                if (newCurrent === '-' || newCurrent === '.') {
+                    calculatorState.currentValue = '0';
+                    calculatorState.waitingForNewValue = true;
+                } else {
+                    calculatorState.currentValue = newCurrent;
+                }
+            } else if (current.length === 1 && current !== '0') {
+                calculatorState.currentValue = '0';
+                calculatorState.waitingForNewValue = true;
+            }
+            
+            calculatorState.lastValue = null;
+            calculatorState.lastOperation = null;
+
+            updateDisplay();
+        }
+
+        // --- イベントリスナー ---
+        
+        // 計算ロジックを実行する共通関数
+        function executeAction(button) {
+            var type = button.getAttribute('data-type');
+            var value = button.getAttribute('data-value');
+
+            if (!type) return;
+
+            switch (type) {
+                case 'number':
+                    inputDigit(value);
+                    break;
+                case 'operator':
+                    handleOperator(value);
+                    break;
+                case 'equals':
+                    handleEquals();
+                    break;
+                case 'clear':
+                    clear();
+                    break;
+                case 'sign':
+                    changeSign();
+                    break;
+            }
+        }
+
+        // 1. (高速化の核心) モバイルでの高速応答のためのタッチイベント
+        // clickイベントの300ms遅延を回避するためにtouchstartを使用
+        calculator.addEventListener('touchstart', function(event) {
+            var button = event.target;
+            if (button.tagName !== 'BUTTON') return;
+
+            // ブラウザの遅延クリックイベントを抑制し、意図しないスクロールを防止
+            event.preventDefault(); 
+
+            // 視覚的フィードバックを即座に開始
+            button.classList.add('active');
+            
+            // 計算ロジックを即座に実行
+            executeAction(button);
+
+            // 視覚的フィードバックを非常に短い時間(50ms)で終了させる
+            setTimeout(function() {
+                button.classList.remove('active');
+            }, 50); 
+            
+            // touchstartでロジックが実行されたため、これ以上の処理は不要
+        });
+
+        // 2. PCマウス操作のためのフォールバック (clickイベント)
+        calculator.addEventListener('click', function(event) {
+            var button = event.target;
+            if (button.tagName !== 'BUTTON') return;
+
+            // touchstartでpreventDefault()が呼ばれているため、モバイルではclickは発生しないか、
+            // 発生してもevent.detailが0になることが多い。二重実行を防ぐためにチェックする。
+            if (event.detail === 0) { 
+                 return; 
+            }
+
+            // PC操作のための視覚的フィードバックとロジック実行
+            button.classList.add('active');
+            executeAction(button);
+            setTimeout(function() {
+                button.classList.remove('active');
+            }, 50); 
+        });
+
+        // 2. スワイプイベント (一文字削除)
+        var touchstartX = 0;
+        var touchendX = 0;
+        var SWIPE_THRESHOLD = 50; 
+
+        swipeArea.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault(); 
+                return;
+            }
+            touchstartX = e.changedTouches[0].screenX;
+        }, false); 
+
+        swipeArea.addEventListener('touchend', function(e) {
+            if (e.changedTouches.length > 1) {
+                e.preventDefault();
+                return;
+            }
+            touchendX = e.changedTouches[0].screenX;
+            handleGesture();
+        }, false);
+        
+        // 全体でのタッチ操作によるズーム防止（タッチ抜け軽減）
+        document.body.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, false);
+
+        // iPad 2のような古いデバイスでクリックイベントの取りこぼしを防ぐため、
+        // document.bodyのtouchmoveに対するpreventDefault()は削除済みです。
+
+        function handleGesture() {
+            var deltaX = touchendX - touchstartX;
+            
+            // スワイプの絶対値が閾値を超えているか確認
+            if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                backspace();
+            }
+        }
+
+        // 3. キーボードイベント (PC操作) 
+        document.addEventListener('keydown', function(e) {
+            if (calculatorState.isError) {
+                if (e.key === 'Escape' || e.key === 'Delete' || e.keyCode === 27 || e.keyCode === 46) {
+                    clear();
+                }
+                return;
+            }
+
+            var key = e.key || String.fromCharCode(e.keyCode); // e.keyがない場合の対応
+            
+            if (key >= '0' && key <= '9' || e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode >= 96 && e.keyCode <= 105) {
+                var digit = key >= '0' && key <= '9' ? key : String.fromCharCode(e.keyCode - 48);
+                if (key === '0' || e.keyCode === 96) digit = '0';
+                inputDigit(digit);
+            } else if (key === '.' || e.keyCode === 190 || e.keyCode === 110) {
+                inputDigit('.');
+            } 
+            else if (['+', '-', '*', '/'].indexOf(key) !== -1 || e.keyCode === 107 || e.keyCode === 109 || e.keyCode === 106 || e.keyCode === 111) {
+                var op = key;
+                if (e.keyCode === 107) op = '+';
+                if (e.keyCode === 109) op = '-';
+                if (e.keyCode === 106) op = '*';
+                if (e.keyCode === 111) op = '/';
+                handleOperator(op);
+            } else if (key === '%' || e.keyCode === 53 && e.shiftKey) {
+                handleOperator('%'); 
+            }
+            else if (key === 'Enter' || key === '=' || e.keyCode === 13) {
+                if (e.preventDefault) e.preventDefault(); 
+                handleEquals();
+            }
+            else if (key === 'Backspace' || e.keyCode === 8) {
+                if (e.preventDefault) e.preventDefault(); 
+                backspace();
+            }
+            else if (key === 'Escape' || e.keyCode === 27) {
+                fullClear();
+                updateDisplay();
+            }
+        });
+
+        // 4. 初期表示の更新
+        window.onload = function() {
+            updateDisplay();
+        };
+    </script>
+</body>
+</html>

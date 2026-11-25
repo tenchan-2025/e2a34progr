@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スピーカー L/R & 位相チェックツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Interフォントを設定 */
+        html { font-family: 'Inter', sans-serif; }
+        /* カスタムスタイル: ボタンのアニメーション */
+        .control-button {
+            transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+        }
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .control-button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .playing-indicator {
+            animation: pulse-ring 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0px rgba(59, 130, 246, 0.7); }
+            100% { box-shadow: 0 0 0 16px rgba(59, 130, 246, 0); }
+        }
+        .playing-indicator.phase {
+            animation: pulse-ring-red 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        @keyframes pulse-ring-red {
+            0% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.7); }
+            100% { box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" class="bg-white p-6 md:p-10 rounded-xl shadow-2xl w-full max-w-4xl">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-6 text-center">
+            🔊 スピーカーテスト＆位相チェック
+        </h1>
+        <p class="text-center text-sm text-gray-500 mb-8">
+            テストトーンは、最大**40秒間**再生されます。途中で停止ボタンを押すと停止します。
+        </p>
+
+        <!-- ステータス表示エリア -->
+        <div class="mb-8 p-4 rounded-lg bg-indigo-50 shadow-inner">
+            <div class="flex justify-between items-center">
+                <span class="text-lg font-semibold text-indigo-700">現在のステータス:</span>
+                <span id="statusMessage" class="text-lg font-bold text-indigo-900 transition-all duration-300">
+                    停止中
+                </span>
+                <div id="playingIndicator" class="w-4 h-4 rounded-full bg-gray-400"></div>
+            </div>
+            <p id="instructionHint" class="text-xs mt-2 text-indigo-600 font-medium">
+                再生ボタンを押してテストを開始してください。
+            </p>
+        </div>
+
+
+        <!-- L/R 個別テストセクション (固定周波数) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <!-- L (左) スピーカーテスト -->
+            <div class="bg-blue-50 p-6 rounded-xl shadow-lg border-t-4 border-blue-500">
+                <h2 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                    </svg>
+                    左 (L) スピーカー (440Hz)
+                </h2>
+                <p class="text-sm text-blue-700 mb-4">左チャンネルのみ、**440Hz**のサイン波を再生します。</p>
+                <div class="flex space-x-4">
+                    <button id="playL" onclick="startTest('L')"
+                        class="control-button flex-1 px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                        再生 (L)
+                    </button>
+                    <button id="stopL" onclick="stopAll()"
+                        class="control-button flex-1 px-4 py-3 bg-gray-400 text-white font-semibold rounded-lg shadow-md hover:bg-gray-500 transition duration-150">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 9a1 1 0 000 2h2a1 1 0 000-2H9z" clip-rule="evenodd" />
+                        </svg>
+                        停止
+                    </button>
+                </div>
+            </div>
+
+            <!-- R (右) スピーカーテスト -->
+            <div class="bg-red-50 p-6 rounded-xl shadow-lg border-t-4 border-red-500">
+                <h2 class="text-xl font-bold text-red-800 mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 19l7-7-7-7m-8 14l7-7-7-7" />
+                    </svg>
+                    右 (R) スピーカー (330Hz)
+                </h2>
+                <p class="text-sm text-red-700 mb-4">右チャンネルのみ、**330Hz**のサイン波を再生します。</p>
+                <div class="flex space-space-x-4">
+                    <button id="playR" onclick="startTest('R')"
+                        class="control-button flex-1 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition duration-150">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                        再生 (R)
+                    </button>
+                    <button id="stopR" onclick="stopAll()"
+                        class="control-button flex-1 px-4 py-3 bg-gray-400 text-white font-semibold rounded-lg shadow-md hover:bg-gray-500 transition duration-150">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 9a1 1 0 000 2h2a1 1 0 000-2H9z" clip-rule="evenodd" />
+                        </svg>
+                        停止
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LR同時再生＆位相チェックセクション -->
+        <div class="bg-purple-50 p-6 rounded-xl shadow-lg border-t-4 border-purple-500 mb-10">
+            <h2 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.276a11.006 11.006 0 00-7.777-2.946l-6.848 1.488a1 1 0 00-.776.96v7.414a1 1 0 00.776.96l6.848 1.488a11.006 11.006 0 007.777-2.946L21.618 9.724z" />
+                </svg>
+                同時再生 & 位相チェック (440Hz)
+            </h2>
+            <p class="text-sm text-purple-700 mb-4">左右両方のチャンネルからサイン波を同時に再生します。</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button id="playBothInPhase" onclick="startTest('Both', false)"
+                    class="control-button col-span-1 md:col-span-2 px-4 py-3 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 transition duration-150">
+                    <span class="font-extrabold text-lg mr-1">L + R</span> (正相: In-Phase)
+                </button>
+                <button id="stopBoth" onclick="stopAll()"
+                    class="control-button px-4 py-3 bg-gray-400 text-white font-semibold rounded-lg shadow-md hover:bg-gray-500 transition duration-150">
+                    停止
+                </button>
+            </div>
+
+            <div class="mt-4 p-4 rounded-lg bg-yellow-50 border border-yellow-300">
+                <h3 class="font-bold text-yellow-800 mb-2">⚠ 位相チェック (Out-of-Phase)</h3>
+                <p class="text-xs text-yellow-700 mb-3">
+                    **逆相**テスト: 左右の波形を反転させて同時に再生します。音が打ち消し合い、定位が不安定に聞こえるか確認してください。
+                </p>
+                <button id="playBothOutPhase" onclick="startTest('Both', true)"
+                    class="control-button w-full px-4 py-3 bg-yellow-600 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-700 transition duration-150">
+                    <span class="font-extrabold text-lg mr-1">L + R</span> (逆相: Out-of-Phase)
+                </button>
+            </div>
+        </div>
+        
+        <!-- 周波数スイープテストセクション (L/R単独追加) -->
+        <div class="bg-green-50 p-6 rounded-xl shadow-lg border-t-4 border-green-500">
+            <h2 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                周波数スイープテスト (20Hz → 20kHz, 40秒)
+            </h2>
+            <p class="text-sm text-green-700 mb-4">
+                **20Hz (超低音) から 20,000Hz (超高音)** まで、周波数を**40秒かけて**ゆっくりと上昇させながら再生します。
+            </p>
+            <div class="grid grid-cols-3 gap-3">
+                <button id="playSweepL" onclick="startSweepTest('L')"
+                    class="control-button px-3 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-150 text-sm md:text-base">
+                    <span class="font-extrabold mr-1">L</span> スイープ (単独)
+                </button>
+                <button id="playSweepR" onclick="startSweepTest('R')"
+                    class="control-button px-3 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-150 text-sm md:text-base">
+                    <span class="font-extrabold mr-1">R</span> スイープ (単独)
+                </button>
+                <button id="playSweepBoth" onclick="startSweepTest('Both')"
+                    class="control-button px-3 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-150 text-sm md:text-base">
+                    <span class="font-extrabold mr-1">L + R</span> スイープ
+                </button>
+            </div>
+            <div class="mt-4">
+                <button id="stopSweep" onclick="stopAll()"
+                    class="control-button w-full px-4 py-3 bg-gray-400 text-white font-semibold rounded-lg shadow-md hover:bg-gray-500 transition duration-150">
+                    停止
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // グローバル変数
+        let audioContext = null;
+        let isPlaying = false;
+        let currentSource = null;
+        let stopTimeout = null;
+        const TEST_DURATION = 40000; // 40秒 (ミリ秒)
+
+        // 定義済みの周波数
+        const FREQUENCY_L = 440; // 左チャンネル: 440Hz (中域)
+        const FREQUENCY_R = 330; // 右チャンネル: 330Hz (低中域)
+        const FREQUENCY_PHASE = 440; // 位相テストは共通周波数
+        
+        // スイープトーンの定数
+        const SWEEP_START_FREQ = 20; // 20Hz (超低音)
+        const SWEEP_END_FREQ = 20000; // 20000Hz (超高音)
+        
+        // 音量ゲイン (通常音量)
+        const R_GAIN = 1.0; 
+
+        // DOM要素
+        const statusMessage = document.getElementById('statusMessage');
+        const instructionHint = document.getElementById('instructionHint');
+        const playingIndicator = document.getElementById('playingIndicator');
+
+        // =========================================================================
+        // ユーティリティ関数
+        // =========================================================================
+
+        /**
+         * ステータス表示を更新する
+         * @param {string} status - 現在の再生状態
+         * @param {string} hint - ユーザーへの指示
+         * @param {boolean} isPlayingStatus - 再生中かどうか
+         * @param {boolean} isPhaseInvert - 逆相かどうか (インジケーターの色を変えるため)
+         */
+        function updateStatus(status, hint, isPlayingStatus, isPhaseInvert = false) {
+            statusMessage.textContent = status;
+            instructionHint.textContent = hint;
+
+            if (isPlayingStatus) {
+                playingIndicator.classList.remove('bg-gray-400', 'phase');
+                playingIndicator.classList.add('bg-blue-500', 'playing-indicator');
+                if (isPhaseInvert) {
+                    playingIndicator.classList.add('phase'); // 赤いパルスにする
+                    playingIndicator.classList.remove('bg-blue-500');
+                    playingIndicator.classList.add('bg-red-500');
+                } else {
+                    playingIndicator.classList.remove('phase');
+                    playingIndicator.classList.remove('bg-red-500');
+                    playingIndicator.classList.add('bg-blue-500');
+                }
+            } else {
+                playingIndicator.classList.remove('bg-blue-500', 'playing-indicator', 'phase', 'bg-red-500');
+                playingIndicator.classList.add('bg-gray-400');
+            }
+        }
+
+        // =========================================================================
+        // Web Audio API ロジック
+        // =========================================================================
+
+        /**
+         * Web Audio Contextを初期化する
+         */
+        function initAudioContext() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    // エラーをコンソールにログし、画面に表示
+                    console.error('Web Audio APIはサポートされていません:', e);
+                    updateStatus('エラー: Web Audio API非対応', '最新のブラウザをご利用ください。', false);
+                    return false;
+                }
+            }
+            // Contextが中断されている場合は再開する (ブラウザの制限対策)
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().catch(err => {
+                    console.error("AudioContext resume failed:", err);
+                    updateStatus('エラー', 'オーディオ再生を開始できませんでした。', false);
+                });
+            }
+            return true;
+        }
+
+        /**
+         * L/R個別または位相テストを開始する (固定周波数)
+         * @param {'L'|'R'|'Both'} channel - 再生チャンネル ('L', 'R', 'Both')
+         * @param {boolean} isPhaseInvert - 逆相再生を行うかどうか
+         */
+        function startTest(channel, isPhaseInvert = false) {
+            if (isPlaying) {
+                console.log('既に再生中です。一旦停止します。');
+                stopAll();
+                setTimeout(() => startTest(channel, isPhaseInvert), 50);
+                return;
+            }
+
+            if (!initAudioContext()) return;
+
+            isPlaying = true;
+            const now = audioContext.currentTime;
+            const durationSec = TEST_DURATION / 1000; // 40秒
+
+            // 1. オシレーター（音源）の作成
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            currentSource = oscillator;
+
+            let statusText = '';
+            let hintText = '';
+            let currentFreq = FREQUENCY_PHASE; 
+
+            try {
+                if (channel === 'L') {
+                    // L チャンネルのみ
+                    currentFreq = FREQUENCY_L;
+                    oscillator.frequency.setValueAtTime(currentFreq, now);
+
+                    const panner = audioContext.createStereoPanner();
+                    panner.pan.setValueAtTime(-1, now); // L: -1.0
+                    oscillator.connect(panner).connect(audioContext.destination);
+                    statusText = `左 (L) チャンネル再生中 (${currentFreq}Hz)`;
+                    hintText = '音が左からのみ聞こえ、右からは聞こえないか確認してください。';
+
+                } else if (channel === 'R') {
+                    // R チャンネルのみ
+                    currentFreq = FREQUENCY_R;
+                    oscillator.frequency.setValueAtTime(currentFreq, now);
+
+                    const gainR_control = audioContext.createGain();
+                    gainR_control.gain.setValueAtTime(R_GAIN, now);
+                    
+                    const panner = audioContext.createStereoPanner();
+                    panner.pan.setValueAtTime(1, now); // R: +1.0
+                    
+                    oscillator.connect(gainR_control).connect(panner).connect(audioContext.destination);
+
+                    statusText = `右 (R) チャンネル再生中 (${currentFreq}Hz) - 通常音量`;
+                    hintText = '音が右からのみ聞こえ、左からは聞こえないか確認してください。';
+
+                } else if (channel === 'Both') {
+                    // 位相チェック
+                    currentFreq = FREQUENCY_PHASE;
+                    oscillator.frequency.setValueAtTime(currentFreq, now);
+
+                    if (isPhaseInvert) {
+                        // L/R 逆相テスト
+                        const pannerL = audioContext.createStereoPanner();
+                        pannerL.pan.setValueAtTime(-1, now);
+                        oscillator.connect(pannerL);
+
+                        const gainR_invert = audioContext.createGain();
+                        gainR_invert.gain.setValueAtTime(-1, now); 
+                        
+                        const gainR_control = audioContext.createGain();
+                        gainR_control.gain.setValueAtTime(R_GAIN, now);
+                        
+                        const pannerR = audioContext.createStereoPanner();
+                        pannerR.pan.setValueAtTime(1, now);
+
+                        oscillator.connect(gainR_invert).connect(gainR_control).connect(pannerR);
+
+                        pannerL.connect(audioContext.destination);
+                        pannerR.connect(audioContext.destination);
+
+                        statusText = `L/R 逆相 (Out-of-Phase) 再生中 🔴 (${currentFreq}Hz)`;
+                        hintText = '音が中央に定位せず、ぼやける/薄くなるのが正常です。';
+
+                    } else {
+                        // L/R 正相テスト
+                        const pannerL = audioContext.createStereoPanner();
+                        pannerL.pan.setValueAtTime(-1, now);
+                        
+                        const gainR_control = audioContext.createGain();
+                        gainR_control.gain.setValueAtTime(R_GAIN, now);
+                        
+                        const pannerR = audioContext.createStereoPanner();
+                        pannerR.pan.setValueAtTime(1, now);
+
+                        oscillator.connect(pannerL);
+                        oscillator.connect(gainR_control).connect(pannerR); 
+
+                        pannerL.connect(audioContext.destination);
+                        pannerR.connect(audioContext.destination);
+
+                        statusText = `L/R 同時 (正相) 再生中 🔵 (${currentFreq}Hz)`;
+                        hintText = '音が中央にしっかりと定位するか確認してください。';
+                    }
+                }
+
+                // 再生開始
+                oscillator.start(now);
+                updateStatus(statusText, hintText + ` (自動で${durationSec}秒後に停止)`, true, isPhaseInvert);
+
+                // 自動停止
+                stopTimeout = setTimeout(() => {
+                    stopAll();
+                }, TEST_DURATION);
+            } catch (error) {
+                console.error('オーディオノード接続エラー:', error);
+                stopAll(); 
+                updateStatus('エラー', 'オーディオの再生中に問題が発生しました。', false);
+            }
+        }
+        
+        /**
+         * 周波数スイープテストを開始する (20Hz -> 20kHz)
+         * @param {'L'|'R'|'Both'} channel - 再生チャンネル ('L', 'R', 'Both')
+         */
+        function startSweepTest(channel) {
+            if (isPlaying) {
+                console.log('既に再生中です。一旦停止します。');
+                stopAll();
+                setTimeout(() => startSweepTest(channel), 50);
+                return;
+            }
+
+            if (!initAudioContext()) return;
+
+            isPlaying = true;
+            const now = audioContext.currentTime;
+            const sweepDurationSec = TEST_DURATION / 1000; // 40秒
+
+            // 1. オシレーター（音源）の作成
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            currentSource = oscillator;
+
+            // 2. 周波数設定
+            oscillator.frequency.setValueAtTime(SWEEP_START_FREQ, now); // 20Hzから開始
+            // 40秒かけて20000Hzに到達
+            oscillator.frequency.linearRampToValueAtTime(SWEEP_END_FREQ, now + sweepDurationSec); 
+
+            // 3. 接続とステータス設定
+            let statusText = '';
+            let hintText = '';
+            
+            const gainNode = audioContext.createGain();
+            gainNode.gain.setValueAtTime(R_GAIN, now); // 全体の音量調整
+
+            if (channel === 'L' || channel === 'R') {
+                const panner = audioContext.createStereoPanner();
+                const panValue = (channel === 'L') ? -1 : 1; // L: -1, R: 1
+                panner.pan.setValueAtTime(panValue, now);
+                
+                // 接続: Oscillator -> Gain -> Panner -> Destination
+                oscillator.connect(gainNode).connect(panner).connect(audioContext.destination);
+
+                statusText = `${channel} チャンネル スイープ再生中 🔊 (${SWEEP_START_FREQ}Hz → ${SWEEP_END_FREQ}Hz)`;
+                hintText = `音が${channel}からのみ聞こえ、途切れがないか確認してください。 (自動で${sweepDurationSec}秒後に停止)`;
+                
+            } else { // 'Both'の場合
+                // 接続: Oscillator -> Gain -> Destination (ステレオ)
+                oscillator.connect(gainNode).connect(audioContext.destination);
+
+                statusText = `L/R 同時 スイープ再生中 🔊 (${SWEEP_START_FREQ}Hz → ${SWEEP_END_FREQ}Hz)`;
+                hintText = `音が最低音から最高音までスムーズに変化し、途切れがないか確認してください。 (自動で${sweepDurationSec}秒後に停止)`;
+            }
+
+            // 4. 再生開始
+            oscillator.start(now);
+            
+            updateStatus(statusText, hintText, true);
+
+            // 5. 自動停止
+            stopTimeout = setTimeout(() => {
+                stopAll();
+            }, TEST_DURATION);
+        }
+
+
+        /**
+         * すべての再生を停止する
+         */
+        function stopAll() {
+            if (stopTimeout) {
+                clearTimeout(stopTimeout);
+                stopTimeout = null;
+            }
+
+            if (currentSource) {
+                try {
+                    currentSource.stop(0);
+                } catch (e) {
+                    console.error("Audio source stop error:", e);
+                }
+                currentSource = null;
+            }
+
+            isPlaying = false;
+            updateStatus('停止中', '再生ボタンを押してテストを開始してください。', false);
+        }
+
+        // ページロード時に停止状態を初期化
+        window.onload = () => {
+             updateStatus('停止中', '再生ボタンを押してテストを開始してください。', false);
+        };
+
+    </script>
+</body>
+</html>
