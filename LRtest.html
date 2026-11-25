@@ -35,8 +35,14 @@
             100% { box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
         }
     </style>
+    <link rel="stylesheet" href="page-transition.css">
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="loading-curtain" data-open-delay="0" style="--curtain-open-duration: 1s; --curtain-close-duration: 1s" aria-hidden="true">
+        <div class="loading-curtain-panel"></div>
+        <div class="loading-curtain-panel"></div>
+        <div class="loading-mark"></div>
+    </div>
 
     <div id="app" class="bg-white p-6 md:p-10 rounded-xl shadow-2xl w-full max-w-4xl">
         <h1 class="text-3xl font-extrabold text-gray-800 mb-6 text-center">
@@ -487,5 +493,6 @@
         };
 
     </script>
+    <script src="page-transition.js"></script>
 </body>
 </html>

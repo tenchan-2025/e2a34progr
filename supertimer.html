@@ -36,8 +36,14 @@
         /* 時計タブ専用の色 */
         .text-teal-700 { color: #0f766e; } /* teal-700 */
     </style>
+    <link rel="stylesheet" href="page-transition.css">
 </head>
 <body class="bg-gray-100 min-h-screen font-sans flex items-center justify-center p-4">
+    <div class="loading-curtain" data-open-delay="0" style="--curtain-open-duration: 1s; --curtain-close-duration: 1s" aria-hidden="true">
+        <div class="loading-curtain-panel"></div>
+        <div class="loading-curtain-panel"></div>
+        <div class="loading-mark"></div>
+    </div>
 
     <div id="app" class="bg-white shadow-2xl rounded-xl w-full max-w-lg overflow-hidden">
         <header class="p-4 bg-indigo-600 text-white">
@@ -792,5 +798,6 @@
         stopClock();
 
     </script>
+    <script src="page-transition.js"></script>
 </body>
 </html>

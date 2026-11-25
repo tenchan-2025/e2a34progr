@@ -2,7 +2,10 @@ const curtain = document.querySelector(".loading-curtain");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 if (curtain && !reducedMotion.matches) {
-  const openDelay = Math.floor(Math.random() * 5) + 1;
+  const configuredOpenDelay = Number(curtain.dataset.openDelay);
+  const openDelay = Number.isFinite(configuredOpenDelay)
+    ? configuredOpenDelay
+    : Math.floor(Math.random() * 5) + 1;
   curtain.style.setProperty("--curtain-open-delay", `${openDelay}s`);
 
   let navigating = false;

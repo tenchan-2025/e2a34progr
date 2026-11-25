@@ -220,8 +220,14 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="page-transition.css">
 </head>
 <body>
+    <div class="loading-curtain" data-open-delay="0" style="--curtain-open-duration: 1s; --curtain-close-duration: 1s" aria-hidden="true">
+        <div class="loading-curtain-panel"></div>
+        <div class="loading-curtain-panel"></div>
+        <div class="loading-mark"></div>
+    </div>
     
     <div id="calculator">
         
@@ -734,5 +740,6 @@
             updateDisplay();
         };
     </script>
+    <script src="page-transition.js"></script>
 </body>
 </html>

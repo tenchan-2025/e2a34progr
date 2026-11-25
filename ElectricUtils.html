@@ -198,8 +198,14 @@
         .resistor-body::before { left: -50px; }
         .resistor-body::after { right: -50px; }
     </style>
+    <link rel="stylesheet" href="page-transition.css">
 </head>
 <body class="bg-gray-100 min-h-screen p-4 sm:p-8">
+    <div class="loading-curtain" data-open-delay="0" style="--curtain-open-duration: 1s; --curtain-close-duration: 1s" aria-hidden="true">
+        <div class="loading-curtain-panel"></div>
+        <div class="loading-curtain-panel"></div>
+        <div class="loading-mark"></div>
+    </div>
 
 <div id="app" class="max-w-4xl mx-auto bg-white shadow-xl rounded-xl">
     <header class="p-6 border-b border-gray-200">
@@ -918,5 +924,6 @@
     };
 </script>
 
+    <script src="page-transition.js"></script>
 </body>
 </html>
